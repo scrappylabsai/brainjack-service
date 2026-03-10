@@ -4,7 +4,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/scrappylabsai/brainjack-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License"></a>
+  <a href="https://github.com/scrappylabsai/brainjack-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-BSL%201.1-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-green" alt="Platform">
   <img src="https://img.shields.io/badge/WebSocket-wss%3A%2F%2F-purple" alt="WebSocket">
@@ -248,7 +248,7 @@ PRs welcome. The codebase is intentionally small -- a single-file agent with one
 
 ## License
 
-[Apache License 2.0](LICENSE)
+[Business Source License 1.1](LICENSE) — free for personal and non-commercial use. Converts to Apache 2.0 on 2030-03-09. Commercial use requires a [license from ScrappyLabs](mailto:brian@scrappylabs.ai).
 
 ---
 
