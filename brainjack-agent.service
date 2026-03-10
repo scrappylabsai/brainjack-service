@@ -1,0 +1,16 @@
+[Unit]
+Description=BrainJack Network Agent — WebSocket HID injection
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=%h/brainjack-agent/.venv/bin/python %h/brainjack-agent/agent.py
+WorkingDirectory=%h/brainjack-agent
+EnvironmentFile=-%h/brainjack-agent/.env
+Environment=DISPLAY=:0
+Environment=WAYLAND_DISPLAY=wayland-0
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

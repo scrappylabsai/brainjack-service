@@ -6,7 +6,7 @@
 <p align="center">
   <a href="https://github.com/scrappylabsai/brainjack-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python 3.10+">
-  <img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS-green" alt="Platform">
+  <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-green" alt="Platform">
   <img src="https://img.shields.io/badge/WebSocket-wss%3A%2F%2F-purple" alt="WebSocket">
 </p>
 
@@ -14,15 +14,15 @@
 
 BrainJack Agent is a WebSocket daemon that receives text injection commands over the network and types them into whatever application has focus. Speak into your phone, the words appear on your computer. No clipboard sharing apps, no cloud services, no browser extensions.
 
-It runs as a background service on any Linux or macOS machine and accepts commands from the [BrainJack iOS app](https://brainjack.ai), a Flipper Zero running [ShellDrop](https://github.com/scrappylabsai/shelldrop-flipper), or an [ESP32-S3 HID dongle](https://github.com/scrappylabsai/brainjack-hid) -- or anything that can open a WebSocket and send JSON.
+It runs as a background service on any Windows, macOS, or Linux machine and accepts commands from the [BrainJack iOS app](https://brainjack.ai), a Flipper Zero running [ShellDrop](https://github.com/scrappylabsai/shelldrop-flipper), or an [ESP32-S3 HID dongle](https://github.com/scrappylabsai/brainjack-hid) -- or anything that can open a WebSocket and send JSON.
 
 ## How It Works
 
 ```
 Phone (voice)  ──>  ASR (on-device)  ──>  WebSocket  ──>  BrainJack Agent  ──>  Keystrokes
                                                               │
-                                              xdotool (X11)   │  ydotool (Wayland)
-                                              osascript (macOS)│
+                                              SendInput (Windows) │  osascript (macOS)
+                                              xdotool (X11)       │  ydotool (Wayland)
 ```
 
 1. You speak into the BrainJack mobile app (or any WebSocket client)
@@ -34,7 +34,7 @@ No drivers. No accessibility APIs to configure. No per-app integrations. If it a
 
 ## Features
 
-- **Cross-platform injection** -- xdotool (X11), ydotool (Wayland), osascript (macOS)
+- **Cross-platform injection** -- SendInput (Windows), osascript (macOS), xdotool (X11), ydotool (Wayland)
 - **Four command types** -- `type` (text), `key` (single key), `combo` (modifier combos like Ctrl+C), `status` (active window info)
 - **Token authentication** -- HMAC-compared bearer tokens via query string or first-message handshake
 - **TLS support** -- Native `ssl` module, auto-generates self-signed certs with `--tls`
@@ -45,6 +45,21 @@ No drivers. No accessibility APIs to configure. No per-app integrations. If it a
 - **Service files included** -- systemd (Linux) and launchd (macOS), installed automatically
 
 ## Quick Start
+
+### Windows
+
+```powershell
+git clone https://github.com/scrappylabsai/brainjack-agent.git
+cd brainjack-agent
+
+# Install (creates venv, generates auth token, sets up auto-start)
+powershell -ExecutionPolicy Bypass -File install.ps1
+
+# Or with TLS:
+powershell -ExecutionPolicy Bypass -File install.ps1 -TLS
+```
+
+### macOS / Linux
 
 ```bash
 git clone https://github.com/scrappylabsai/brainjack-agent.git
@@ -60,8 +75,8 @@ cd brainjack-agent
 The installer:
 1. Creates a Python venv and installs dependencies
 2. Generates a secure auth token (saved to `.env`)
-3. Installs the appropriate system service (systemd or launchd)
-4. Installs `xdotool` or `ydotool` if needed (Linux only)
+3. Installs the appropriate system service (Task Scheduler / launchd / systemd)
+4. Configures firewall rules (Windows) or installs input tools (Linux)
 
 After install, the agent is running on port `9898`. The auth token is printed to stdout -- copy it to your client app.
 
@@ -181,24 +196,36 @@ This is designed for private networks. The agent types keystrokes into your comp
 
 | Platform | Tool | Install |
 |----------|------|---------|
+| Windows | None | Built-in (Win32 SendInput API via ctypes) |
+| macOS | `osascript` | Built-in (requires Accessibility permission) |
 | Linux (X11) | `xdotool` | `sudo apt install xdotool` or `sudo pacman -S xdotool` |
 | Linux (Wayland) | `ydotool` | `sudo apt install ydotool` or `sudo pacman -S ydotool` |
-| macOS | `osascript` | Built-in (requires Accessibility permission) |
+
+**Windows note:** No extra tools needed. The agent uses the native Win32 `SendInput` API. The installer adds a firewall rule for private networks.
 
 **macOS note:** System Preferences > Privacy & Security > Accessibility -- grant permission to Terminal (or whatever runs the agent).
 
 ## Service Management
 
-```bash
-# Linux (systemd user service)
-systemctl --user status brainjack-agent
-systemctl --user restart brainjack-agent
-journalctl --user -u brainjack-agent -f
+```powershell
+# Windows (Scheduled Task)
+Get-ScheduledTask -TaskName "BrainJack Agent"
+Start-ScheduledTask -TaskName "BrainJack Agent"
+Stop-ScheduledTask -TaskName "BrainJack Agent"
+# Uninstall:
+.\install.ps1 -Uninstall
+```
 
+```bash
 # macOS (launchd)
 launchctl list com.brainjack.agent
 launchctl unload ~/Library/LaunchAgents/com.brainjack.agent.plist
 launchctl load ~/Library/LaunchAgents/com.brainjack.agent.plist
+
+# Linux (systemd user service)
+systemctl --user status brainjack-agent
+systemctl --user restart brainjack-agent
+journalctl --user -u brainjack-agent -f
 ```
 
 ## BrainJack Ecosystem
