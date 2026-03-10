@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — brainjack.ai</title>
+<meta name="description" content="brainjack.ai Privacy Policy">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #05050a;
+  --surface: #0d0d14;
+  --border: #1e1e2e;
+  --text: #f0f0f5;
+  --text-muted: #8888a0;
+  --primary: #7c3aed;
+  --green: #10b981;
+  --font: 'Inter', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); line-height: 1.7; }
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header { padding: 20px 40px; border-bottom: 1px solid var(--border); }
+header a { color: var(--text); font-weight: 800; font-size: 1.1rem; }
+main { max-width: 720px; margin: 0 auto; padding: 60px 20px 80px; }
+h1 { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
+.last-updated { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 3rem; }
+h2 { font-size: 1.3rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1rem; }
+h3 { font-size: 1.05rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+p, li { color: var(--text-muted); margin-bottom: 1rem; }
+ul { padding-left: 1.5rem; margin-bottom: 1.5rem; }
+li { margin-bottom: 0.5rem; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+.card h3 { margin-top: 0; color: var(--text); }
+.badge { display: inline-block; font-family: var(--mono); font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 4px; margin-bottom: 0.5rem; }
+.badge-free { background: rgba(124, 58, 237, 0.15); color: var(--primary); }
+.badge-paid { background: rgba(16, 185, 129, 0.15); color: var(--green); }
+.badge-both { background: rgba(136, 136, 160, 0.15); color: var(--text-muted); }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); font-size: 0.9rem; }
+th { color: var(--text); font-weight: 600; }
+footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border); }
+@media (max-width: 768px) { main { padding: 40px 16px 60px; } header { padding: 16px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="/">brainjack.ai</a>
+</header>
+
+<main>
+  <h1>Privacy Policy</h1>
+  <p class="last-updated">Last updated: March 10, 2026</p>
+
+  <p>ScrappyLabs ("we", "us", "our") operates brainjack.ai and the BrainJack mobile application. This policy describes what data we collect, how it flows, and your choices — especially regarding the two service tiers.</p>
+
+  <h2>How BrainJack Works</h2>
+
+  <p>BrainJack converts your voice into keystrokes on a target computer. The data flow depends on which tier you use:</p>
+
+  <table>
+    <tr><th>Data</th><th>Free Tier</th><th>Pro</th></tr>
+    <tr><td>Voice audio</td><td>Apple on-device ASR only (never leaves phone)</td><td>On-device, your own server, or ScrappyLabs Fleet ASR (600 min/mo)</td></tr>
+    <tr><td>Transcribed text</td><td>Sent directly to your agent</td><td>Optionally processed by our AI cleanup, then forwarded</td></tr>
+    <tr><td>Keystroke commands</td><td>Over your local network (never cloud)</td><td>Over your local network (never cloud)</td></tr>
+    <tr><td>Device IPs / tokens</td><td>Stored on-device only</td><td>Stored on-device only</td></tr>
+  </table>
+
+  <h2>What We Collect</h2>
+
+  <div class="card">
+    <h3>Voice Audio (Free Tier)</h3>
+    <span class="badge badge-free">FREE TIER</span>
+    <p>Free-tier voice recognition uses Apple's on-device speech recognition. <strong>Your audio never leaves your phone.</strong> Apple processes it locally on the device. We never see, receive, or process your voice audio on the free tier.</p>
+  </div>
+
+  <div class="card">
+    <h3>Voice Audio (Pro — Your Own Backend)</h3>
+    <span class="badge badge-paid">PRO — YOUR CHOICE</span>
+    <p>Pro users can configure their own ASR backend: Apple on-device, a self-hosted Whisper server, or any compatible endpoint. When using on-device or self-hosted ASR, <strong>no audio data leaves your device or local network</strong>. We never see or process it. Usage with your own infrastructure is unlimited.</p>
+  </div>
+
+  <div class="card">
+    <h3>Voice Audio (Pro — ScrappyLabs Fleet ASR)</h3>
+    <span class="badge badge-paid">PRO — OUR SERVERS</span>
+    <p>Pro users can optionally use ScrappyLabs Fleet ASR for higher-quality transcription and AI text cleanup (up to 600 minutes per month). When using this option, your voice audio is sent to ScrappyLabs servers, processed in real-time, and <strong>immediately discarded</strong>. We do not store, record, retain, or train on your voice data. Ever.</p>
+  </div>
+
+  <div class="card">
+    <h3>Keystroke Commands</h3>
+    <span class="badge badge-both">ALL TIERS</span>
+    <p>Keystroke commands (type, key, combo) are sent over WebSocket directly from your phone to the BrainJack agent running on your target computer. This traffic stays on <strong>your local network</strong>. It never passes through our servers. We cannot see what you type.</p>
+  </div>
+
+  <div class="card">
+    <h3>Device Configuration</h3>
+    <span class="badge badge-both">ALL TIERS</span>
+    <p>Device names, IP addresses, and authentication tokens are stored <strong>locally on your device</strong> (iOS UserDefaults / Keychain). This data is never sent to our servers.</p>
+  </div>
+
+  <h2>What We Don't Collect</h2>
+
+  <ul>
+    <li>Keystroke content — we never see what you type into target machines</li>
+    <li>Location data</li>
+    <li>Contacts, photos, or camera data</li>
+    <li>Browsing or search history</li>
+    <li>Advertising identifiers or tracking data</li>
+    <li>Financial or payment information (payments handled by Apple)</li>
+  </ul>
+
+  <h2>Device Permissions</h2>
+
+  <ul>
+    <li><strong>Microphone</strong> — Required for voice-to-keystroke. Audio is only captured when you actively tap the record button.</li>
+    <li><strong>Speech Recognition</strong> — Used for on-device ASR (Pro tier with Apple backend). Processed by Apple on your device.</li>
+    <li><strong>Local Network</strong> — Required to communicate with BrainJack agents on your network.</li>
+    <li><strong>Bluetooth</strong> — Optional. Used for BLE HID devices (ESP32 dongles, Flipper Zero).</li>
+  </ul>
+
+  <h2>Third-Party Services</h2>
+
+  <p>Depending on your configuration:</p>
+  <ul>
+    <li><strong>Apple Speech Recognition</strong> — When using on-device ASR. Subject to <a href="https://www.apple.com/legal/privacy/">Apple's privacy policy</a>.</li>
+    <li><strong>ScrappyLabs ASR</strong> — Free tier only. Processed on our infrastructure (US-based). Not shared with third parties.</li>
+  </ul>
+
+  <h2>Data Security</h2>
+
+  <ul>
+    <li>WebSocket connections support TLS encryption (wss://)</li>
+    <li>Agent authentication uses HMAC constant-time token comparison</li>
+    <li>Agent audit logs record connection events but <strong>never log keystroke content</strong></li>
+    <li>All server-side processing uses encrypted connections</li>
+  </ul>
+
+  <h2>Children's Privacy</h2>
+  <p>BrainJack is intended for users 13 and older. We do not knowingly collect personal information from children under 13.</p>
+
+  <h2>Your Rights</h2>
+  <ul>
+    <li><strong>Switch to Pro</strong> — Eliminate all server-side processing by configuring your own ASR backend</li>
+    <li><strong>Delete app data</strong> — Uninstalling the app removes all locally stored configuration</li>
+    <li><strong>Request data deletion</strong> — Contact us to confirm no data is retained on our servers</li>
+  </ul>
+
+  <h2>Changes to This Policy</h2>
+  <p>We may update this policy from time to time. Changes will be posted here with an updated date.</p>
+
+  <h2>Contact</h2>
+  <p>Questions? <a href="mailto:privacy@scrappylabs.ai">privacy@scrappylabs.ai</a></p>
+</main>
+
+<footer>
+  &copy; 2026 ScrappyLabs. All rights reserved. | <a href="/">brainjack.ai</a> | <a href="https://scrappylabs.ai">ScrappyLabs</a>
+</footer>
+
+</body>
+</html>

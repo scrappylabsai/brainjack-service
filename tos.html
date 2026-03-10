@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms of Service — brainjack.ai</title>
+<meta name="description" content="brainjack.ai Terms of Service">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #05050a;
+  --surface: #0d0d14;
+  --border: #1e1e2e;
+  --text: #f0f0f5;
+  --text-muted: #8888a0;
+  --primary: #7c3aed;
+  --font: 'Inter', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); line-height: 1.7; }
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header { padding: 20px 40px; border-bottom: 1px solid var(--border); }
+header a { color: var(--text); font-weight: 800; font-size: 1.1rem; }
+main { max-width: 720px; margin: 0 auto; padding: 60px 20px 80px; }
+h1 { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
+.last-updated { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 3rem; }
+h2 { font-size: 1.3rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1rem; }
+p, li { color: var(--text-muted); margin-bottom: 1rem; }
+ul { padding-left: 1.5rem; margin-bottom: 1.5rem; }
+li { margin-bottom: 0.5rem; }
+footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border); }
+@media (max-width: 768px) { main { padding: 40px 16px 60px; } header { padding: 16px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="/">brainjack.ai</a>
+</header>
+
+<main>
+  <h1>Terms of Service</h1>
+  <p class="last-updated">Last updated: March 10, 2026</p>
+
+  <p>These terms govern your use of the BrainJack mobile application and the brainjack.ai website, operated by ScrappyLabs ("we", "us", "our"). By using BrainJack, you agree to these terms.</p>
+
+  <h2>1. What BrainJack Does</h2>
+  <p>BrainJack is a voice-to-keystroke tool. It converts your speech into text commands and sends them to a software agent running on your computer. The agent injects keystrokes into whatever application has focus. BrainJack is designed for use on computers you own or are authorized to control.</p>
+
+  <h2>2. Authorized Use Only</h2>
+  <p>You may only use BrainJack on devices you own or have explicit authorization to control. You agree not to use BrainJack to:</p>
+  <ul>
+    <li>Access or control computers without authorization</li>
+    <li>Inject keystrokes into systems you do not have permission to operate</li>
+    <li>Circumvent security controls or authentication mechanisms</li>
+    <li>Conduct any illegal activity</li>
+  </ul>
+  <p>You are solely responsible for how you use BrainJack and the commands you send to target machines.</p>
+
+  <h2>3. Service Tiers</h2>
+  <p><strong>Free tier:</strong> Includes Apple on-device speech recognition and unlimited keystroke delivery over your local network. No server-side processing. No account required.</p>
+  <p><strong>Pro tier (annual subscription):</strong> Unlocks the full platform:</p>
+  <ul>
+    <li><strong>Configure your own backend</strong> — connect your own ASR server, LLM, or any compatible endpoint. Unlimited usage with your own infrastructure.</li>
+    <li><strong>ScrappyLabs AI</strong> — up to 600 minutes per month of server-side voice processing and AI text cleanup via ScrappyLabs Fleet ASR. Unused minutes do not roll over.</li>
+    <li><strong>All free-tier features</strong> — Apple on-device ASR and unlimited keystroke delivery remain available.</li>
+  </ul>
+  <p>ScrappyLabs reserves the right to throttle or suspend accounts that exceed fair-use limits or abuse server-side processing. Subscription pricing and minute allocations may change with 30 days notice.</p>
+
+  <h2>4. The BrainJack Agent</h2>
+  <p>The BrainJack agent (the software that runs on your computer) is open-source under the <a href="https://github.com/scrappylabsai/brainjack-agent/blob/main/LICENSE">Business Source License 1.1</a>. It is free for personal and non-commercial use. Commercial use requires a separate license from ScrappyLabs.</p>
+
+  <h2>5. Privacy</h2>
+  <p>We take your privacy seriously. We do not store your voice recordings. We do not log keystroke content. We do not sell your data. We do not train on your data. See our <a href="/privacy.html">Privacy Policy</a> for full details.</p>
+
+  <h2>6. No Warranty</h2>
+  <p>BrainJack is provided "as is" without warranty of any kind. We do not guarantee uninterrupted service, perfect transcription accuracy, or compatibility with every system. Voice recognition quality depends on your device, environment, and network conditions.</p>
+
+  <h2>7. Limitation of Liability</h2>
+  <p>To the maximum extent permitted by law, ScrappyLabs shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of BrainJack, including but not limited to unintended keystrokes, data loss, or unauthorized access resulting from misconfigured agents.</p>
+
+  <h2>8. Security</h2>
+  <p>BrainJack includes authentication tokens and TLS support to secure connections. You are responsible for:</p>
+  <ul>
+    <li>Keeping your agent auth tokens secure</li>
+    <li>Configuring appropriate network security (firewalls, TLS)</li>
+    <li>Limiting agent access to trusted networks</li>
+  </ul>
+
+  <h2>9. Acceptable Use</h2>
+  <p>Do not use BrainJack to abuse, harass, or harm others. Do not attempt to reverse-engineer, exploit, or attack our services. We reserve the right to suspend access to our servers for any user who violates these terms.</p>
+
+  <h2>10. Changes</h2>
+  <p>We may update these terms from time to time. Continued use of BrainJack after changes constitutes acceptance. Material changes will be communicated through the app or website.</p>
+
+  <h2>11. Governing Law</h2>
+  <p>These terms are governed by the laws of the State of North Carolina, United States.</p>
+
+  <h2>12. Contact</h2>
+  <p>Questions? <a href="mailto:legal@scrappylabs.ai">legal@scrappylabs.ai</a></p>
+</main>
+
+<footer>
+  &copy; 2026 ScrappyLabs. All rights reserved. | <a href="/">brainjack.ai</a> | <a href="https://scrappylabs.ai">ScrappyLabs</a>
+</footer>
+
+</body>
+</html>
