@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrainJack — Thought to Action</title>
+    <meta name="description" content="Plug in. Speak. AI types. The universal voice-to-keystroke bridge for any computer, any OS, any legacy system.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05050a;
+            --surface: #0d0d14;
+            --surface-2: #14141e;
+            --text: #f0f0f5;
+            --text-muted: #8888a0;
+            --primary: #7c3aed;
+            --primary-light: #a78bfa;
+            --accent: #3b82f6;
+            --accent-glow: rgba(124, 58, 237, 0.3);
+            --pink: #ec4899;
+            --pink-glow: rgba(236, 72, 153, 0.2);
+            --green: #10b981;
+            --border: #1e1e2e;
+            --font: 'Inter', system-ui, sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .skip-link {
+            position: absolute; top: -40px; left: 0;
+            background: var(--primary); color: white; padding: 8px; z-index: 100;
+        }
+        .skip-link:focus { top: 0; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+        /* Header */
+        header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+            background: rgba(5, 5, 10, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .header-inner {
+            max-width: 1200px; margin: 0 auto; padding: 16px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text); }
+        .logo img { width: 40px; height: 40px; border-radius: 8px; }
+        .logo-text { font-weight: 800; font-size: 1.3rem; letter-spacing: -0.02em; }
+        .logo-tagline { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.15em; }
+
+        nav ul { display: flex; list-style: none; gap: 28px; }
+        nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color 0.2s; }
+        nav a:hover { color: var(--text); }
+
+        .header-cta {
+            padding: 8px 20px; border-radius: 6px; font-size: 0.85rem; font-weight: 600;
+            background: var(--primary); color: white; text-decoration: none;
+            transition: all 0.2s;
+        }
+        .header-cta:hover { background: #6d28d9; transform: translateY(-1px); }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            text-align: center; padding: 140px 24px 80px; position: relative;
+        }
+        .hero::before {
+            content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 800px; height: 600px;
+            background: radial-gradient(ellipse, var(--accent-glow) 0%, var(--pink-glow) 40%, transparent 70%);
+            filter: blur(80px); z-index: 0;
+        }
+        .hero-content { position: relative; z-index: 1; max-width: 900px; }
+
+        .hero-brain {
+            width: 280px; height: 280px; border-radius: 50%;
+            object-fit: cover; margin: 0 auto 40px;
+            box-shadow: 0 0 80px var(--accent-glow), 0 0 160px var(--pink-glow);
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.8rem, 6vw, 5rem); font-weight: 900;
+            letter-spacing: -0.03em; line-height: 1.05; margin-bottom: 24px;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent), var(--primary), var(--pink));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero p {
+            font-size: 1.25rem; color: var(--text-muted); max-width: 600px;
+            margin: 0 auto 40px; line-height: 1.7;
+        }
+        .hero-ctas { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 14px 28px; border-radius: 8px; font-weight: 600;
+            text-decoration: none; transition: all 0.25s; border: none;
+            font-size: 1rem; cursor: pointer;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white; box-shadow: 0 4px 20px var(--accent-glow);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--accent-glow); }
+        .btn-outline {
+            background: transparent; border: 1px solid var(--border); color: var(--text);
+        }
+        .btn-outline:hover { border-color: var(--primary-light); background: var(--surface); }
+
+        .hero-mono {
+            margin-top: 48px; font-family: var(--mono); font-size: 0.8rem;
+            color: var(--text-muted); letter-spacing: 0.1em;
+        }
+        .hero-mono span { color: var(--primary-light); }
+
+        /* Section base */
+        section { padding: 120px 0; }
+        .section-label {
+            font-family: var(--mono); font-size: 0.75rem; color: var(--primary-light);
+            text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 12px;
+            display: block; text-align: center;
+        }
+        h2 {
+            font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800;
+            letter-spacing: -0.02em; text-align: center; margin-bottom: 20px; line-height: 1.1;
+        }
+        .section-sub {
+            text-align: center; color: var(--text-muted); max-width: 600px;
+            margin: 0 auto 60px; font-size: 1.1rem;
+        }
+
+        /* How it works */
+        .flow {
+            display: flex; align-items: center; justify-content: center; gap: 0;
+            flex-wrap: wrap; margin-top: 60px;
+        }
+        .flow-step {
+            text-align: center; padding: 40px 30px; flex: 1; min-width: 220px; max-width: 300px;
+            position: relative;
+        }
+        .flow-icon {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: var(--surface-2); border: 2px solid var(--border);
+            display: grid; place-items: center; margin: 0 auto 20px;
+            font-size: 2rem;
+        }
+        .flow-step h3 { font-size: 1.3rem; margin-bottom: 8px; }
+        .flow-step p { font-size: 0.9rem; color: var(--text-muted); }
+        .flow-arrow {
+            font-size: 1.5rem; color: var(--primary-light); padding: 0 8px;
+            align-self: center;
+        }
+
+        /* Features grid */
+        .features {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px; margin-top: 60px;
+        }
+        .feature-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 32px; transition: all 0.3s;
+            position: relative; overflow: hidden;
+        }
+        .feature-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .feature-card:hover::before { opacity: 1; }
+        .feature-card:hover { border-color: var(--primary); transform: translateY(-4px); }
+        .feature-icon { font-size: 1.8rem; margin-bottom: 16px; }
+        .feature-card h4 { font-size: 1.1rem; margin-bottom: 8px; }
+        .feature-card p { font-size: 0.9rem; color: var(--text-muted); }
+
+        /* Platform downloads */
+        .downloads {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px; max-width: 900px; margin: 0 auto;
+        }
+        .dl-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+            padding: 28px; text-align: center; text-decoration: none; color: var(--text);
+            transition: all 0.3s;
+        }
+        .dl-card:hover { border-color: var(--primary); transform: translateY(-4px); }
+        .dl-icon { font-size: 2.5rem; margin-bottom: 12px; }
+        .dl-card strong { display: block; font-size: 1.1rem; margin-bottom: 4px; }
+        .dl-card span { font-size: 0.75rem; color: var(--text-muted); }
+
+        /* Use cases */
+        .cases {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        .case-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+            padding: 36px; transition: all 0.3s;
+        }
+        .case-card:hover { border-color: var(--primary); }
+        .case-tag {
+            display: inline-block; font-size: 0.7rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            padding: 4px 12px; border-radius: 100px; margin-bottom: 16px;
+        }
+        .case-tag.medical { background: rgba(16, 185, 129, 0.15); color: var(--green); }
+        .case-tag.business { background: rgba(59, 130, 246, 0.15); color: var(--accent); }
+        .case-tag.diy { background: rgba(236, 72, 153, 0.15); color: var(--pink); }
+        .case-tag.devops { background: rgba(124, 58, 237, 0.15); color: var(--primary-light); }
+        .case-tag.remote { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+        .case-card h3 { font-size: 1.3rem; margin-bottom: 12px; }
+        .case-card p { font-size: 0.9rem; color: var(--text-muted); }
+
+        /* Pricing */
+        .pricing {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px; max-width: 1000px; margin: 0 auto;
+        }
+        .price-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+            padding: 36px; display: flex; flex-direction: column; transition: all 0.3s;
+        }
+        .price-card.featured {
+            border-color: var(--primary); position: relative;
+            background: linear-gradient(180deg, rgba(124,58,237,0.08) 0%, var(--surface) 100%);
+        }
+        .price-card.featured::before {
+            content: 'Most Popular'; position: absolute; top: -12px; left: 50%;
+            transform: translateX(-50%); background: var(--primary); color: white;
+            padding: 4px 16px; border-radius: 100px; font-size: 0.7rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .price-card h3 { font-size: 1.2rem; margin-bottom: 4px; }
+        .price-card .price-desc { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 20px; }
+        .price-amount { font-size: 2.8rem; font-weight: 900; margin-bottom: 24px; }
+        .price-amount span { font-size: 0.9rem; color: var(--text-muted); font-weight: 400; }
+        .price-card ul { list-style: none; margin-bottom: 28px; flex-grow: 1; }
+        .price-card li {
+            font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .price-card li::before { content: '\2713'; color: var(--green); font-weight: bold; font-size: 0.9rem; }
+
+        /* App showcase */
+        .app-showcase {
+            display: flex; align-items: center; justify-content: center; gap: 40px;
+            flex-wrap: wrap; margin-top: 60px;
+        }
+        .app-icon-preview {
+            width: 120px; height: 120px; border-radius: 24px; object-fit: cover;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+        }
+        .app-badges { display: flex; flex-direction: column; gap: 12px; }
+        .app-badge {
+            display: inline-flex; align-items: center; gap: 12px;
+            background: var(--surface); border: 1px solid var(--border);
+            padding: 12px 20px; border-radius: 10px; color: var(--text);
+            text-decoration: none; transition: all 0.2s;
+        }
+        .app-badge:hover { border-color: var(--primary); }
+        .app-badge-icon { font-size: 1.5rem; }
+        .app-badge small { display: block; font-size: 0.65rem; color: var(--text-muted); }
+        .app-badge strong { font-size: 0.95rem; }
+
+        /* Code block */
+        .install-block {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+            padding: 24px 32px; max-width: 600px; margin: 40px auto 0;
+            font-family: var(--mono); font-size: 0.85rem; position: relative;
+            overflow-x: auto;
+        }
+        .install-block .comment { color: var(--text-muted); }
+        .install-block .cmd { color: var(--green); }
+        .install-label {
+            position: absolute; top: -10px; left: 16px;
+            background: var(--surface-2); color: var(--text-muted);
+            padding: 2px 10px; border-radius: 4px; font-size: 0.65rem;
+            text-transform: uppercase; letter-spacing: 0.1em;
+        }
+
+        /* CTA section */
+        .cta-section {
+            text-align: center; padding: 120px 24px;
+            background: linear-gradient(180deg, transparent, rgba(124,58,237,0.05), transparent);
+        }
+        .cta-brain {
+            width: 160px; height: 160px; border-radius: 50%; object-fit: cover;
+            margin: 0 auto 32px;
+            box-shadow: 0 0 60px var(--accent-glow);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Footer */
+        footer {
+            padding: 60px 24px 32px; border-top: 1px solid var(--border); text-align: center;
+        }
+        .footer-links { display: flex; justify-content: center; gap: 24px; list-style: none; margin: 20px 0; flex-wrap: wrap; }
+        .footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.8rem; }
+        .footer-links a:hover { color: var(--text); }
+        .copyright { color: var(--text-muted); font-size: 0.7rem; margin-top: 20px; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav, .header-cta { display: none; }
+            .hero h1 { font-size: 2.4rem; }
+            .hero-brain { width: 200px; height: 200px; }
+            .flow { flex-direction: column; }
+            .flow-arrow { transform: rotate(90deg); }
+            .pricing { gap: 32px; }
+            .price-card.featured { transform: none; }
+        }
+
+        /* Animations */
+        .reveal {
+            opacity: 0; transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+    <a href="#content" class="skip-link">Skip to main content</a>
+
+    <header>
+        <div class="header-inner">
+            <a href="/" class="logo">
+                <img src="assets/logo-dark.jpg" alt="BrainJack logo">
+                <div>
+                    <div class="logo-text">BrainJack</div>
+                    <div class="logo-tagline">thought to action</div>
+                </div>
+            </a>
+            <nav aria-label="Main Navigation">
+                <ul>
+                    <li><a href="#how">How it Works</a></li>
+                    <li><a href="#platforms">Downloads</a></li>
+                    <li><a href="#use-cases">Use Cases</a></li>
+                    <li><a href="https://github.com/scrappylabsai/brainjack-agent">GitHub</a></li>
+                </ul>
+            </nav>
+            <a href="#platforms" class="header-cta">Get Started Free</a>
+        </div>
+    </header>
+
+    <main id="content">
+        <!-- Hero -->
+        <section class="hero">
+            <div class="hero-content">
+                <img src="assets/hero-brain-dark.jpg" alt="3D brain with USB connector" class="hero-brain">
+                <h1>Your voice.<br><span class="gradient-text">Any keyboard.</span></h1>
+                <p>Control any computer from your phone. Voice-to-keystroke across SSH sessions, remote machines, and legacy systems. No drivers. No cloud. No limits.</p>
+                <div class="hero-ctas">
+                    <a href="#platforms" class="btn btn-primary">Download Free Agent</a>
+                    <a href="https://github.com/scrappylabsai/brainjack-agent" class="btn btn-outline">View on GitHub</a>
+                </div>
+                <div class="hero-mono">
+                    <span>$</span> brainjack --listen <span>|</span> thought <span>&rarr;</span> action
+                </div>
+            </div>
+        </section>
+
+        <!-- How it Works -->
+        <section id="how" class="reveal">
+            <div class="container">
+                <span class="section-label">How it works</span>
+                <h2>Three steps. Zero friction.</h2>
+                <div class="flow">
+                    <div class="flow-step">
+                        <div class="flow-icon">&#127908;</div>
+                        <h3>Speak</h3>
+                        <p>Talk naturally into the BrainJack app. On-device ASR — nothing leaves your network.</p>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step">
+                        <div class="flow-icon">&#129504;</div>
+                        <h3>Think</h3>
+                        <p>AI interprets your intent, formats data, resolves macros, and queues keystrokes.</p>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step">
+                        <div class="flow-icon">&#9000;</div>
+                        <h3>Type</h3>
+                        <p>Keystrokes inject into whatever window has focus. USB HID or network agent — your choice.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="reveal">
+            <div class="container">
+                <span class="section-label">Why BrainJack</span>
+                <h2>Built different.</h2>
+                <p class="section-sub">Not another clipboard app. BrainJack is a universal HID bridge that works where nothing else can.</p>
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">&#128268;</div>
+                        <h4>Universal USB HID</h4>
+                        <p>Appears as a standard keyboard. Works with BIOS, login screens, legacy DOS, anything that takes keyboard input since 1995.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">&#128272;</div>
+                        <h4>HIPAA-Local by Default</h4>
+                        <p>All voice processing stays on your network. Zero cloud dependency. Token auth, TLS, audit logging built in.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">&#128187;</div>
+                        <h4>Every Platform</h4>
+                        <p>Windows (SendInput), macOS (osascript), Linux X11 (xdotool), Linux Wayland (ydotool). One agent, all OSes.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">&#9889;</div>
+                        <h4>Zero Install on Target</h4>
+                        <p>With the ESP32 dongle, the target machine needs nothing. No drivers. No software. No admin rights. Just USB.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">&#127899;</div>
+                        <h4>Command Sheets</h4>
+                        <p>One-tap macros for vim, tmux, emacs, VS Code, shell. Tool-specific palettes, color-coded, OS-aware.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">&#128640;</div>
+                        <h4>Open Ecosystem</h4>
+                        <p>Compatible with ESP32-S3, Flipper Zero, any WebSocket client. Source-available under BSL. Build on it.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Platform Downloads -->
+        <section id="platforms" class="reveal">
+            <div class="container">
+                <span class="section-label">Get Started</span>
+                <h2>Run everywhere.</h2>
+                <p class="section-sub">Install the agent on your target machine in 30 seconds. Or flash the ESP32 dongle for zero-install deployment.</p>
+
+                <div class="install-block">
+                    <div class="install-label">Quick Install</div>
+                    <span class="comment"># Clone and install (any platform)</span><br>
+                    <span class="cmd">git clone https://github.com/scrappylabsai/brainjack-agent.git</span><br>
+                    <span class="cmd">cd brainjack-agent</span><br>
+                    <span class="comment"># Linux/macOS:</span><br>
+                    <span class="cmd">./install.sh</span><br>
+                    <span class="comment"># Windows (PowerShell):</span><br>
+                    <span class="cmd">powershell -ExecutionPolicy Bypass -File install.ps1</span>
+                </div>
+
+                <div class="downloads" style="margin-top: 48px;">
+                    <a href="https://github.com/scrappylabsai/brainjack-agent" class="dl-card">
+                        <div class="dl-icon">&#128421;</div>
+                        <strong>Windows</strong>
+                        <span>PowerShell installer</span>
+                    </a>
+                    <a href="https://github.com/scrappylabsai/brainjack-agent" class="dl-card">
+                        <div class="dl-icon">&#63743;</div>
+                        <strong>macOS</strong>
+                        <span>LaunchAgent service</span>
+                    </a>
+                    <a href="https://github.com/scrappylabsai/brainjack-agent" class="dl-card">
+                        <div class="dl-icon">&#128039;</div>
+                        <strong>Linux</strong>
+                        <span>systemd service</span>
+                    </a>
+                    <a href="https://github.com/scrappylabsai/brainjack-agent" class="dl-card" style="border-color: var(--pink);">
+                        <div class="dl-icon">&#9881;</div>
+                        <strong>ESP32 Firmware</strong>
+                        <span>USB HID dongle</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- App -->
+        <section class="reveal">
+            <div class="container" style="text-align: center;">
+                <span class="section-label">Mobile App</span>
+                <h2>Your phone is the remote.</h2>
+                <p class="section-sub">Voice input, virtual trackpad, macro sheets, multi-device management. All from your pocket.</p>
+                <div class="app-showcase">
+                    <img src="assets/image_0_iOS_app__20260309_224557.jpg" alt="BrainJack iOS app icon" class="app-icon-preview">
+                    <div class="app-badges">
+                        <a href="#" class="app-badge">
+                            <span class="app-badge-icon">&#63743;</span>
+                            <div>
+                                <small>Download on the</small>
+                                <strong>App Store</strong>
+                            </div>
+                        </a>
+                        <a href="#" class="app-badge">
+                            <span class="app-badge-icon">&#9654;</span>
+                            <div>
+                                <small>Coming soon on</small>
+                                <strong>Google Play</strong>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Use Cases -->
+        <section id="use-cases" class="reveal">
+            <div class="container">
+                <span class="section-label">Use Cases</span>
+                <h2>Your phone. Every machine.</h2>
+                <p class="section-sub">Control any machine from your phone. SSH, code, manage servers — all by voice.</p>
+                <div class="cases">
+                    <div class="case-card">
+                        <span class="case-tag devops">DevOps / Coding</span>
+                        <h3>Your Phone is a Terminal</h3>
+                        <p>SSH into 10 servers from the couch. One-tap vim macros, tmux splits, shell combos. Voice-dictate code, commit messages, config files. Command sheets built for the terminal-obsessed.</p>
+                    </div>
+                    <div class="case-card">
+                        <span class="case-tag remote">Remote Sessions</span>
+                        <h3>Multi-Machine from Your Pocket</h3>
+                        <p>Switch between your work Mac, home Linux box, and a cloud VM — all from one phone. Each device remembers its OS, macros, and auth token. You're always one tap away.</p>
+                    </div>
+                    <div class="case-card">
+                        <span class="case-tag diy">Makers / Flipper</span>
+                        <h3>Open Hardware, Open Firmware</h3>
+                        <p>Flash an ESP32-S3 or your Flipper Zero WiFi board. Full firmware on GitHub. Build your own voice-controlled anything for the cost of a coffee.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing coming soon -->
+
+        <!-- Final CTA -->
+        <section class="cta-section reveal">
+            <img src="assets/hero-brain-light.jpg" alt="BrainJack brain" class="cta-brain">
+            <h2>Ready to jack in?</h2>
+            <p style="color: var(--text-muted); margin-bottom: 32px; font-size: 1.1rem;">The agent is free. The firmware is open. The future is voice.</p>
+            <a href="https://github.com/scrappylabsai/brainjack-agent" class="btn btn-primary" style="font-size: 1.1rem; padding: 16px 36px;">
+                Get BrainJack Free
+            </a>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <a href="/" class="logo" style="justify-content: center; margin-bottom: 8px;">
+                <img src="assets/logo-dark.jpg" alt="BrainJack" style="width: 32px; height: 32px; border-radius: 6px;">
+                <span style="font-weight: 800; font-size: 1.1rem;">BrainJack</span>
+            </a>
+            <ul class="footer-links">
+                <li><a href="https://github.com/scrappylabsai/brainjack-agent">GitHub</a></li>
+                <li><a href="https://github.com/scrappylabsai/brainjack-agent/blob/main/LICENSE">License (BSL 1.1)</a></li>
+                <li><a href="mailto:brian@scrappylabs.ai">Support</a></li>
+                <li><a href="https://scrappylabs.ai">ScrappyLabs</a></li>
+            </ul>
+            <div class="copyright">&copy; 2026 ScrappyLabs. Thought to action.</div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                const t = document.querySelector(a.getAttribute('href'));
+                if (t) t.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Scroll reveal
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+    </script>
+</body>
+</html>
