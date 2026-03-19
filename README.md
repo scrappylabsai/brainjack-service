@@ -78,6 +78,8 @@ The installer:
 3. Sets up auto-start (Startup folder on Windows / launchd on macOS / systemd on Linux)
 4. Configures firewall rules (Windows) or installs input tools (Linux)
 
+> **macOS users:** You must grant Accessibility permission for keystroke injection to work. See the [detailed macOS install guide](docs/INSTALL-MACOS.md) for step-by-step instructions, troubleshooting, and a verification script.
+
 After install, the agent is running on port `9898`. The auth token is printed to stdout -- copy it to your client app.
 
 ### Manual Start
@@ -201,7 +203,7 @@ This is designed for private networks. The agent types keystrokes into your comp
 | Linux (X11) | `xdotool` | `sudo apt install xdotool` or `sudo pacman -S xdotool` |
 | Linux (Wayland) | `ydotool` | `sudo apt install ydotool` or `sudo pacman -S ydotool` |
 
-**macOS note:** System Preferences > Privacy & Security > Accessibility -- grant permission to Terminal (or whatever runs the agent).
+**macOS note:** System Settings > Privacy & Security > Accessibility -- grant permission to the Python binary (not Terminal). See [docs/INSTALL-MACOS.md](docs/INSTALL-MACOS.md) for the exact path and a verification script (`docs/verify-macos.sh`).
 
 ### Windows Notes
 

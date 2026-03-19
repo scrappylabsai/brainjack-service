@@ -33,7 +33,7 @@ if [ ! -f "$DIR/.env" ]; then
 fi
 
 # --- Token generation ---
-CURRENT_TOKEN=$(grep -oP '^BRAINJACK_TOKEN=\K.+' "$DIR/.env" 2>/dev/null || true)
+CURRENT_TOKEN=$(grep '^BRAINJACK_TOKEN=' "$DIR/.env" 2>/dev/null | sed 's/^BRAINJACK_TOKEN=//' || true)
 if [ -z "$CURRENT_TOKEN" ]; then
     TOKEN=$(python3 -c "import secrets; print(secrets.token_urlsafe(32))")
     if [ "$OS" = "Darwin" ]; then
