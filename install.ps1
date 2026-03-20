@@ -1,4 +1,4 @@
-# BrainJack Agent — Windows Installer
+# BrainJack Service — Windows Installer
 # Run: powershell -ExecutionPolicy Bypass -File install.ps1
 # Options: install.ps1 [-TLS] [-Uninstall]
 
@@ -9,7 +9,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $AgentDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$TaskName = "BrainJack Agent"
+$TaskName = "BrainJack Service"
 $EnvFile = Join-Path $AgentDir ".env"
 $EnvTemplate = Join-Path $AgentDir ".env.template"
 
@@ -20,7 +20,7 @@ function Write-Err($msg) { Write-Host "[brainjack] $msg" -ForegroundColor Red }
 
 # --- Uninstall ---
 if ($Uninstall) {
-    Write-Step "Uninstalling BrainJack Agent..."
+    Write-Step "Uninstalling BrainJack Service..."
     $existing = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
     if ($existing) {
         Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
@@ -156,13 +156,13 @@ if ($TLS) {
 
 # --- Windows Firewall rule ---
 Write-Step "Configuring firewall..."
-$fwRule = Get-NetFirewallRule -DisplayName "BrainJack Agent" -ErrorAction SilentlyContinue
+$fwRule = Get-NetFirewallRule -DisplayName "BrainJack Service" -ErrorAction SilentlyContinue
 if (-not $fwRule) {
     try {
-        New-NetFirewallRule -DisplayName "BrainJack Agent" `
+        New-NetFirewallRule -DisplayName "BrainJack Service" `
             -Direction Inbound -Protocol TCP -LocalPort 9898 `
             -Action Allow -Profile Domain,Private,Public `
-            -Description "Allow BrainJack Agent WebSocket connections" | Out-Null
+            -Description "Allow BrainJack Service WebSocket connections" | Out-Null
         Write-Ok "Firewall rule added (all network profiles)."
     } catch {
         Write-Warn "Could not add firewall rule. Run as Administrator, or manually allow port 9898."
@@ -170,7 +170,7 @@ if (-not $fwRule) {
 } else {
     # Ensure rule covers all profiles (not just Private)
     try {
-        Set-NetFirewallRule -DisplayName "BrainJack Agent" -Profile Domain,Private,Public
+        Set-NetFirewallRule -DisplayName "BrainJack Service" -Profile Domain,Private,Public
         Write-Ok "Firewall rule updated (all network profiles)."
     } catch {
         Write-Ok "Firewall rule already exists."
@@ -206,16 +206,16 @@ $desktopBat = Join-Path ([Environment]::GetFolderPath("Desktop")) "Start-BrainJa
 $batContent = @"
 @echo off
 cd /d $AgentDir
-echo Starting BrainJack Agent...
+echo Starting BrainJack Service...
 start /B .venv\Scripts\pythonw.exe agent.py
-echo BrainJack Agent started on port 9898.
+echo BrainJack Service started on port 9898.
 timeout /t 3 /nobreak >nul
 "@
 Set-Content -Path $desktopBat -Value $batContent -Encoding ASCII
 Write-Ok "Desktop shortcut created (Start-BrainJack.bat)."
 
 # --- Start the agent now ---
-Write-Step "Starting BrainJack Agent..."
+Write-Step "Starting BrainJack Service..."
 $agentProc = Start-Process -FilePath $pythonVenv -ArgumentList "agent.py" `
     -WorkingDirectory $AgentDir -PassThru -WindowStyle Hidden
 Start-Sleep -Seconds 2
@@ -230,7 +230,7 @@ if ($listening) {
 # --- Summary ---
 Write-Host ""
 Write-Host "  ========================================" -ForegroundColor Green
-Write-Host "  BrainJack Agent installed successfully!" -ForegroundColor Green
+Write-Host "  BrainJack Service installed successfully!" -ForegroundColor Green
 Write-Host "  ========================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "  Port:      9898" -ForegroundColor White

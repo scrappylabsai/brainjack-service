@@ -1,4 +1,4 @@
-"""Comprehensive test suite for BrainJack Agent.
+"""Comprehensive test suite for BrainJack Service.
 
 Covers: auth, command parsing, rate limiting, platform detection,
 audit logging, TLS config, and error handling.

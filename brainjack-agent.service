@@ -1,5 +1,5 @@
 [Unit]
-Description=BrainJack Network Agent — WebSocket HID injection
+Description=BrainJack Service — WebSocket HID injection
 After=network.target
 
 [Service]

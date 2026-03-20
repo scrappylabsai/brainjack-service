@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# BrainJack Agent — cross-platform installer.
+# BrainJack Service — cross-platform installer.
 # Detects Linux (systemd) vs macOS (launchd), sets up venv, generates
 # auth token if missing, optional --tls for self-signed certs.
 set -euo pipefail

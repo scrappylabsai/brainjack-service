@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">BrainJack Agent</h1>
+  <h1 align="center">BrainJack Service</h1>
   <p align="center"><strong>Voice goes in, keystrokes come out. On any computer. No software install on the target.</strong></p>
 </p>
 
@@ -12,14 +12,14 @@
 
 ---
 
-BrainJack Agent is a WebSocket daemon that receives text injection commands over the network and types them into whatever application has focus. Speak into your phone, the words appear on your computer. No clipboard sharing apps, no cloud services, no browser extensions.
+BrainJack Service is a WebSocket daemon that receives text injection commands over the network and types them into whatever application has focus. Speak into your phone, the words appear on your computer. No clipboard sharing apps, no cloud services, no browser extensions.
 
 It runs as a background service on any Windows, macOS, or Linux machine and accepts commands from the [BrainJack iOS app](https://brainjack.ai), a Flipper Zero running [ShellDrop](https://github.com/scrappylabsai/shelldrop-flipper), or an [ESP32-S3 HID dongle](https://github.com/scrappylabsai/brainjack-hid) -- or anything that can open a WebSocket and send JSON.
 
 ## How It Works
 
 ```
-Phone (voice)  ──>  ASR (on-device)  ──>  WebSocket  ──>  BrainJack Agent  ──>  Keystrokes
+Phone (voice)  ──>  ASR (on-device)  ──>  WebSocket  ──>  BrainJack Service  ──>  Keystrokes
                                                               │
                                               SendInput (Windows) │  osascript (macOS)
                                               xdotool (X11)       │  ydotool (Wayland)
@@ -28,7 +28,7 @@ Phone (voice)  ──>  ASR (on-device)  ──>  WebSocket  ──>  BrainJack 
 1. You speak into the BrainJack mobile app (or any WebSocket client)
 2. Speech is transcribed on-device (local-first ASR, nothing leaves your network)
 3. The transcript is sent as a JSON command over WebSocket
-4. The agent injects keystrokes into whatever window has focus
+4. The service injects keystrokes into whatever window has focus
 
 No drivers. No accessibility APIs to configure. No per-app integrations. If it accepts keyboard input, BrainJack can type into it.
 
@@ -252,7 +252,7 @@ journalctl --user -u brainjack-agent -f
 
 | Component | Description |
 |-----------|-------------|
-| **[BrainJack Agent](https://github.com/scrappylabsai/brainjack-agent)** | This repo. WebSocket daemon that injects keystrokes. |
+| **[BrainJack Service](https://github.com/scrappylabsai/brainjack-agent)** | This repo. WebSocket daemon that injects keystrokes. |
 | **[BrainJack HID](https://github.com/scrappylabsai/brainjack-hid)** | ESP32-S3 USB dongle. Plugs into any computer, receives text over WiFi, types via native USB HID. No software install on target. |
 | **[ShellDrop FAP](https://github.com/scrappylabsai/shelldrop-flipper)** | Flipper Zero app with voice-to-keystroke, fleet commands, and AI input. |
 | **[ShellDrop Bridge](https://github.com/scrappylabsai/shelldrop-bridge)** | ESP32-S2 WiFi bridge firmware for the Flipper Zero WiFi Dev Board. |

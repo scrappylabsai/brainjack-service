@@ -119,7 +119,7 @@ if [ ! -f "$INSTALL_DIR/agent.py" ]; then
     fail "Download failed. Check your internet connection and try again."
 fi
 
-ok "Agent downloaded"
+ok "Downloaded"
 
 # ── Python venv ──────────────────────────────────────────────
 step "Setting up Python environment"
@@ -187,7 +187,7 @@ else
     # Rewrite the service file for the install location
     cat > ~/.config/systemd/user/brainjack-agent.service <<UNIT
 [Unit]
-Description=BrainJack Agent
+Description=BrainJack Service
 After=network.target
 
 [Service]
@@ -229,7 +229,7 @@ asyncio.run(t())
 done
 
 if [ "$RUNNING" = true ]; then
-    ok "Agent running on port $PORT"
+    ok "Service running on port $PORT"
 else
     warn "Agent may still be starting. Check logs:"
     if [ "$OS" = "Darwin" ]; then
@@ -346,7 +346,7 @@ cat > "$QR_HTML" << 'QREOF'
   </div>
   <div class="step-hint">
     <strong>Next:</strong> Open BrainJack on your iPhone &rarr; tap <strong>+</strong> &rarr; <strong>Scan QR Code</strong><br>
-    <span class="check">&#10003;</span> Agent installed &nbsp;
+    <span class="check">&#10003;</span> Service installed &nbsp;
     <span class="check">&#10003;</span> Service running &nbsp;
     <span id="accessibility-status"></span>
   </div>

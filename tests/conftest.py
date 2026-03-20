@@ -1,4 +1,4 @@
-"""Shared fixtures for BrainJack Agent tests."""
+"""Shared fixtures for BrainJack Service tests."""
 
 import argparse
 import asyncio
