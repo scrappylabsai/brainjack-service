@@ -368,7 +368,7 @@
             <div class="hero-content">
                 <img src="assets/hero-brain-dark.jpg" alt="3D brain with USB connector" class="hero-brain">
                 <h1>Your voice.<br><span class="gradient-text">Any keyboard.</span></h1>
-                <p>Control any computer from your phone. Voice-to-keystroke across SSH sessions, remote machines, and legacy systems. No drivers. No cloud. No limits.</p>
+                <p>Speak into your phone. AI generates text, code, emails &mdash; copies to clipboard or types into any computer. No drivers. No cloud. Works standalone.</p>
                 <div class="hero-ctas">
                     <a href="#platforms" class="btn btn-primary">Get Started Free</a>
                     <a href="#demo" class="btn btn-outline">Watch Demo</a>
@@ -421,13 +421,13 @@
                     <div class="flow-step">
                         <div class="flow-icon">&#129504;</div>
                         <h3>Think</h3>
-                        <p>AI interprets your intent, formats data, resolves macros, and queues keystrokes.</p>
+                        <p>AI interprets your intent &mdash; generates letters, code, emails, or keyboard actions. Full content creation, not just dictation.</p>
                     </div>
                     <div class="flow-arrow">&rarr;</div>
                     <div class="flow-step">
                         <div class="flow-icon">&#9000;</div>
                         <h3>Type</h3>
-                        <p>Keystrokes inject into whatever window has focus. USB dongle or wireless — your choice.</p>
+                        <p>Copied to your clipboard instantly. Or, connect to a computer and keystrokes inject into whatever has focus.</p>
                     </div>
                 </div>
             </div>
@@ -470,6 +470,16 @@
                         <h4>Open Ecosystem</h4>
                         <p>Compatible with ESP32-S3, Flipper Zero, any WebSocket client. Source-available under BSL. Build on it.</p>
                     </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">&#129302;</div>
+                        <h4>AI Agent Mode</h4>
+                        <p>Say "I'm filling out a vet form, write a letter about my dog's shots." The AI generates the full letter. Review on your phone, then send.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">&#128203;</div>
+                        <h4>Clipboard-First</h4>
+                        <p>Works without any computer setup. Speak, AI generates, copied to clipboard. Paste into any app. No service needed.</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -483,13 +493,10 @@
 
                 <div class="install-block">
                     <div class="install-label">Quick Install</div>
-                    <span class="comment"># Clone and install (any platform)</span><br>
-                    <span class="cmd">git clone https://github.com/scrappylabsai/brainjack-agent.git</span><br>
-                    <span class="cmd">cd brainjack-agent</span><br>
-                    <span class="comment"># Linux/macOS:</span><br>
-                    <span class="cmd">./install.sh</span><br>
+                    <span class="comment"># macOS / Linux:</span><br>
+                    <span class="cmd">curl -fsSL https://raw.githubusercontent.com/scrappylabsai/brainjack-agent/main/get-brainjack.sh | bash</span><br><br>
                     <span class="comment"># Windows (PowerShell):</span><br>
-                    <span class="cmd">powershell -ExecutionPolicy Bypass -File install.ps1</span>
+                    <span class="cmd">irm https://raw.githubusercontent.com/scrappylabsai/brainjack-agent/main/install.ps1 | iex</span>
                 </div>
 
                 <div class="downloads" style="margin-top: 48px;">
@@ -498,12 +505,12 @@
                         <strong>Windows</strong>
                         <span>One-click install</span>
                     </a>
-                    <a href="https://github.com/scrappylabsai/brainjack-agent" class="dl-card">
+                    <a href="setup.html" class="dl-card">
                         <div class="dl-icon">&#63743;</div>
                         <strong>macOS</strong>
                         <span>One-click install</span>
                     </a>
-                    <a href="https://github.com/scrappylabsai/brainjack-agent" class="dl-card">
+                    <a href="setup.html" class="dl-card">
                         <div class="dl-icon">&#128039;</div>
                         <strong>Linux</strong>
                         <span>One-click install</span>
@@ -567,6 +574,11 @@
                         <h3>Open Hardware, Open Firmware</h3>
                         <p>Flash an ESP32-S3 or your Flipper Zero WiFi board. Full firmware on GitHub. Build your own voice-controlled anything for the cost of a coffee.</p>
                     </div>
+                    <div class="case-card">
+                        <span class="case-tag medical">Everyday</span>
+                        <h3>Forms, Letters, Emails</h3>
+                        <p>At the vet? Say "write a letter confirming my dog's rabies shot on March 15th." BrainJack generates the full letter, you paste it into the web form. Voice-to-content for real life.</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -578,7 +590,7 @@
             <img src="assets/hero-brain-light.jpg" alt="BrainJack brain" class="cta-brain">
             <h2>Ready to jack in?</h2>
             <p style="color: var(--text-muted); margin-bottom: 32px; font-size: 1.1rem;">Free to start. Open source. The future is voice.</p>
-            <a href="https://github.com/scrappylabsai/brainjack-agent" class="btn btn-primary" style="font-size: 1.1rem; padding: 16px 36px;">
+            <a href="setup.html" class="btn btn-primary" style="font-size: 1.1rem; padding: 16px 36px;">
                 Get Started Free
             </a>
         </section>
