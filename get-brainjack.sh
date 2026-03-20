@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────
-# BrainJack — One-line installer for macOS & Linux
+# BrainJack Service — One-line installer for macOS & Linux
 #
 #   curl -fsSL https://brainjack.ai/get | bash
 #
-# Downloads the agent, creates a venv, generates an auth token,
-# installs a background service, and opens a QR code for pairing.
+# Downloads the service, sets up everything automatically,
+# and opens a QR code to pair with the BrainJack iOS app.
 # ─────────────────────────────────────────────────────────────
 set -euo pipefail
 
@@ -57,26 +57,46 @@ fi
 
 step "Detected $PLATFORM ($ARCH)"
 
-# Check Python
-PYTHON=""
-for cmd in python3 python; do
-    if command -v "$cmd" &>/dev/null; then
-        VER=$("$cmd" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null || true)
-        if [ -n "$VER" ]; then
-            MAJOR=$(echo "$VER" | cut -d. -f1)
-            MINOR=$(echo "$VER" | cut -d. -f2)
-            if [ "$MAJOR" -ge 3 ] && [ "$MINOR" -ge 10 ]; then
-                PYTHON="$cmd"
-                break
+# Check Python — auto-install on macOS if missing
+find_python() {
+    for cmd in python3 python; do
+        if command -v "$cmd" &>/dev/null; then
+            VER=$("$cmd" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null || true)
+            if [ -n "$VER" ]; then
+                MAJOR=$(echo "$VER" | cut -d. -f1)
+                MINOR=$(echo "$VER" | cut -d. -f2)
+                if [ "$MAJOR" -ge 3 ] && [ "$MINOR" -ge 10 ]; then
+                    echo "$cmd"
+                    return 0
+                fi
             fi
         fi
+    done
+    return 1
+}
+
+PYTHON=$(find_python || true)
+
+if [ -z "$PYTHON" ] && [ "$OS" = "Darwin" ]; then
+    step "Python not found — installing via Homebrew"
+    if ! command -v brew &>/dev/null; then
+        info "Installing Homebrew first (this is normal on a fresh Mac)..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" </dev/null
+        # Add brew to PATH for this session
+        if [ -f /opt/homebrew/bin/brew ]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        elif [ -f /usr/local/bin/brew ]; then
+            eval "$(/usr/local/bin/brew shellenv)"
+        fi
     fi
-done
+    brew install python 2>/dev/null
+    PYTHON=$(find_python || true)
+fi
 
 if [ -z "$PYTHON" ]; then
-    fail "Python 3.10+ required. Install it first:
+    fail "Python 3.10+ required. Install it:
       macOS:  brew install python
-      Linux:  sudo apt install python3  (or your distro's package manager)"
+      Linux:  sudo apt install python3"
 fi
 
 ok "Python: $($PYTHON --version 2>&1)"
@@ -231,7 +251,7 @@ done
 if [ "$RUNNING" = true ]; then
     ok "Service running on port $PORT"
 else
-    warn "Agent may still be starting. Check logs:"
+    warn "Service may still be starting. Check logs:"
     if [ "$OS" = "Darwin" ]; then
         info "tail -f $INSTALL_DIR/brainjack.log"
     else
@@ -242,14 +262,13 @@ fi
 # ── macOS: Accessibility permission ──────────────────────────
 if [ "$OS" = "Darwin" ]; then
     echo ""
-    step "Accessibility Permission (required for keystroke injection)"
+    step "One more thing — Accessibility Permission"
     echo ""
-    echo -e "  ${YELLOW}macOS requires you to grant Accessibility permission.${NC}"
-    echo -e "  ${YELLOW}Without this, the agent connects but keystrokes won't type.${NC}"
+    echo -e "  ${YELLOW}macOS needs your permission for BrainJack to type keystrokes.${NC}"
+    echo -e "  ${YELLOW}System Settings is opening now — just follow these steps:${NC}"
     echo ""
-    echo -e "  ${BOLD}1.${NC} System Settings will open to the right page"
-    echo -e "  ${BOLD}2.${NC} Click the ${BOLD}+${NC} button (unlock if needed)"
-    echo -e "  ${BOLD}3.${NC} Press ${BOLD}Cmd+Shift+G${NC} and paste this path:"
+    echo -e "  ${BOLD}1.${NC} Click the ${BOLD}+${NC} button (enter your password if asked)"
+    echo -e "  ${BOLD}2.${NC} Press ${BOLD}Cmd+Shift+G${NC} and paste this path:"
     echo ""
 
     # Find the actual Python.app path (resolve venv symlinks)
@@ -264,7 +283,9 @@ if [ "$OS" = "Darwin" ]; then
     fi
 
     echo ""
-    echo -e "  ${BOLD}4.${NC} Toggle it ${GREEN}ON${NC}"
+    echo -e "  ${BOLD}3.${NC} Toggle it ${GREEN}ON${NC}"
+    echo ""
+    echo -e "  ${DIM}  Skip this if you only want clipboard mode (no typing into your Mac).${NC}"
     echo ""
 
     # Open System Settings
