@@ -1,270 +1,326 @@
 <p align="center">
-  <h1 align="center">BrainJack Service</h1>
-  <p align="center"><strong>Voice goes in, keystrokes come out. On any computer. No software install on the target.</strong></p>
+  <h1 align="center">BrainJack</h1>
+  <p align="center"><strong>Voice in. Keystrokes out. On any computer.</strong></p>
 </p>
 
 <p align="center">
-  <a href="https://github.com/scrappylabsai/brainjack-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-BSL%201.1-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python 3.10+">
+  <a href="https://testflight.apple.com/join/z8H86Qfj"><img src="https://img.shields.io/badge/iOS_App-TestFlight-blue?logo=apple&logoColor=white" alt="TestFlight"></a>
+  <a href="https://brainjack.ai"><img src="https://img.shields.io/badge/website-brainjack.ai-orange" alt="Website"></a>
+  <a href="https://github.com/scrappylabsai/brainjack-service/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-BSL%201.1-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-green" alt="Platform">
-  <img src="https://img.shields.io/badge/WebSocket-wss%3A%2F%2F-purple" alt="WebSocket">
 </p>
 
 ---
 
-BrainJack Service is a WebSocket daemon that receives text injection commands over the network and types them into whatever application has focus. Speak into your phone, the words appear on your computer. No clipboard sharing apps, no cloud services, no browser extensions.
+Speak into your phone. Keystrokes appear on your computer. Not clipboard paste. Not dictation. **Real keystrokes** injected at the OS level — terminal, code editor, AI agent, any app.
 
-It runs as a background service on any Windows, macOS, or Linux machine and accepts commands from the [BrainJack iOS app](https://brainjack.ai), a Flipper Zero running [ShellDrop](https://github.com/scrappylabsai/shelldrop-flipper), or an [ESP32-S3 HID dongle](https://github.com/scrappylabsai/brainjack-hid) -- or anything that can open a WebSocket and send JSON.
+Works two ways:
 
-## How It Works
+| | **Install the Service** | **Use the USB Dongle** |
+|---|---|---|
+| **What** | Free software on your computer | Plug-and-play USB device |
+| **Install on target?** | Yes (this repo) | **Nothing.** It's a standard keyboard. |
+| **Best for** | Developers, self-hosters, BYOK crowd | Everyone else. Corporate machines. Air-gapped systems. |
+| **How it works** | Phone → WiFi → Service → OS keystrokes | Phone → WiFi/BLE → Dongle → USB HID keystrokes |
 
+**Both paths require the [BrainJack iOS app](https://testflight.apple.com/join/z8H86Qfj)** — that's where your voice lives.
+
+---
+
+## Get Started
+
+### Step 1: Get the App
+
+**[Download from TestFlight](https://testflight.apple.com/join/z8H86Qfj)** — free during beta, all features unlocked.
+
+### Step 2: Choose Your Path
+
+<details>
+<summary><strong>Path A: Install the Service (developers)</strong> — 30 seconds</summary>
+
+```bash
+# One-liner install (macOS / Linux)
+curl -fsSL https://brainjack.ai/get | bash
+
+# Or clone and install manually
+git clone https://github.com/scrappylabsai/brainjack-service.git
+cd brainjack-service
+./install.sh
 ```
-Phone (voice)  ──>  ASR (on-device)  ──>  WebSocket  ──>  BrainJack Service  ──>  Keystrokes
-                                                              │
-                                              SendInput (Windows) │  osascript (macOS)
-                                              xdotool (X11)       │  ydotool (Wayland)
-```
 
-1. You speak into the BrainJack mobile app (or any WebSocket client)
-2. Speech is transcribed on-device (local-first ASR, nothing leaves your network)
-3. The transcript is sent as a JSON command over WebSocket
-4. The service injects keystrokes into whatever window has focus
+The installer creates a venv, installs one dependency (`websockets`), generates an auth token, starts the service, and shows a QR code. Scan it with the app. Done.
 
-No drivers. No accessibility APIs to configure. No per-app integrations. If it accepts keyboard input, BrainJack can type into it.
+**macOS**: Grant Accessibility permission to "BrainJack" in System Settings → Privacy & Security → Accessibility.
+
+**Windows**: `powershell -ExecutionPolicy Bypass -File install.ps1`
+
+</details>
+
+<details>
+<summary><strong>Path B: Use the USB Dongle (everyone)</strong> — plug and play</summary>
+
+The BrainJack dongle is a pre-flashed ESP32-S3 that appears as a standard USB keyboard. Plug it into any computer. The target machine thinks someone is typing on a keyboard.
+
+- No software to install on the target
+- No drivers, no admin rights
+- Works on BIOS, login screens, air-gapped machines, KVMs
+- Works with anything that has USB — since 1995
+
+Your phone connects to the dongle over WiFi or Bluetooth. You speak, the dongle types.
+
+**[Get a dongle →](mailto:brian@scrappylabs.ai)**
+
+</details>
+
+### Step 3: Talk
+
+Open the app. Connect to your computer (QR scan or manual IP). Start speaking.
+
+---
+
+## Who Is This For?
+
+### Developers and AI Agent Users
+You live in Claude Code, Cursor, terminals. You want to talk instead of type. BrainJack speaks into whatever has focus — your IDE, your terminal, your AI agent. Agent mode translates natural speech into keyboard actions.
+
+### Corporate Workers (AI is Blocked)
+Your company locked down ChatGPT, Copilot, browser extensions — all of it. But they can't block a USB keyboard.
+
+The BrainJack dongle IS a keyboard. IT sees a standard HID device, same as any Logitech or Dell. No network traffic from the work PC, no software process, no extension to flag. **The AI lives on your phone. Your work PC just sees a keyboard.**
+
+### Accessibility
+Voice control that works with every app, not just ones that support it. Real keystrokes at the OS level means BrainJack works where platform accessibility tools don't.
+
+### Makers and Robotics
+Control anything that accepts text input — robots, IoT devices, Raspberry Pi, Jetson. BrainJack turns your voice into keystrokes on any target with USB or a network connection.
+
+---
+
+## How It's Different
+
+| | **BrainJack** | **Dictation Apps** |
+|---|---|---|
+| **What it does** | Voice → keystrokes (control) | Voice → text (input) |
+| **Works with** | Any app, any OS, terminals, agents, BIOS | Text fields only |
+| **Privacy** | 100% local possible. BYOK everything. | Cloud-only, sends data to third parties |
+| **Hardware option** | USB dongle — zero software on target | None |
+| **Linux** | Yes | Usually no |
+| **Offline** | Yes (local ASR + LLM) | No |
+| **Setup** | 30 seconds | Account + download + cloud dependency |
+
+---
+
+## BYOK — Bring Your Own Everything
+
+Nothing is locked in. Your ASR server. Your LLM. Your hardware. Your network.
+
+| Component | What you bring | Examples |
+|-----------|---------------|----------|
+| **ASR** | Any OpenAI-compatible endpoint | Whisper.cpp, Qwen-ASR, Faster Whisper |
+| **LLM** | Any OpenAI-compatible endpoint | Ollama, vLLM, Claude, GPT |
+| **Target** | Any OS with the service or dongle | macOS, Windows, Linux, headless servers |
+| **Connection** | WiFi, BLE, or USB HID | LAN WebSocket, Bluetooth, ESP32 dongle |
+
+Your data never leaves your network unless you want it to.
+
+---
 
 ## Features
 
-- **Cross-platform injection** -- SendInput (Windows), osascript (macOS), xdotool (X11), ydotool (Wayland)
-- **Four command types** -- `type` (text), `key` (single key), `combo` (modifier combos like Ctrl+C), `status` (active window info)
-- **Token authentication** -- HMAC-compared bearer tokens via query string or first-message handshake
-- **TLS support** -- Native `ssl` module, auto-generates self-signed certs with `--tls`
-- **Per-IP rate limiting** -- Token bucket algorithm, configurable burst and window
-- **Audit logging** -- JSON lines with rotation, never logs keystroke content
-- **Reverse proxy mode** -- Trusts X-Forwarded-For, binds localhost, skips TLS (proxy handles it)
-- **Zero dependencies** -- Single `websockets` pip package. That's it.
-- **Service files included** -- systemd (Linux) and launchd (macOS), installed automatically
+- **Cross-platform keystrokes** — SendInput (Windows), osascript (macOS), xdotool/ydotool (Linux)
+- **Agent mode** — LLM translates speech into keyboard actions, app navigation, shell commands
+- **Command sheets** — macro palettes for Vim, tmux, VS Code, shell
+- **Live mode** — continuous listening, auto-send
+- **Multi-device** — add all your machines, switch with a tap
+- **Token auth** — HMAC with constant-time comparison
+- **TLS** — self-signed or bring your own certs
+- **Rate limiting** — per-IP token bucket
+- **Audit logging** — JSON lines, never logs keystroke content
+- **Zero bloat** — single Python file, one dependency, ~10MB RAM
 
-## Quick Start
+---
 
-### Windows
+## Detailed Install Guides
+
+<details>
+<summary><strong>macOS</strong></summary>
+
+### Prerequisites
+
+| Requirement | Check | Install |
+|-------------|-------|---------|
+| Python 3.10+ | `python3 --version` | `brew install python` or [python.org](https://python.org) |
+| Git | `git --version` | `brew install git` or Xcode CLI Tools |
+
+### Install
+
+```bash
+git clone https://github.com/scrappylabsai/brainjack-service.git
+cd brainjack-service
+./install.sh
+```
+
+The installer creates a venv, installs `websockets`, generates an auth token, installs a launchd agent (auto-starts on login), and displays a QR code for phone pairing.
+
+### Grant Accessibility Permission (Required)
+
+1. **System Settings → Privacy & Security → Accessibility**
+2. Click **+**, add **BrainJack**
+3. Toggle **on**
+
+Without this, the service connects but keystrokes silently fail.
+
+### Verify
+
+```bash
+./docs/verify-macos.sh    # All 10 checks should PASS
+```
+
+### Service Management
+
+```bash
+launchctl list com.brainjack.agent              # Status
+launchctl unload ~/Library/LaunchAgents/com.brainjack.agent.plist  # Stop
+launchctl load ~/Library/LaunchAgents/com.brainjack.agent.plist    # Start
+cat ~/brainjack-service/brainjack.log           # Logs
+```
+
+</details>
+
+<details>
+<summary><strong>Windows</strong></summary>
+
+### Prerequisites
+
+| Requirement | Check | Install |
+|-------------|-------|---------|
+| Python 3.10+ | `python --version` | [python.org](https://python.org) or `winget install Python.Python.3.13` |
+| Git | `git --version` | [git-scm.com](https://git-scm.com) or `winget install Git.Git` |
+
+No extra tools needed. BrainJack uses the native Win32 `SendInput` API.
+
+### Install
 
 ```powershell
-git clone https://github.com/scrappylabsai/brainjack-agent.git
-cd brainjack-agent
-
-# Install (creates venv, generates auth token, sets up auto-start)
+git clone https://github.com/scrappylabsai/brainjack-service.git
+cd brainjack-service
 powershell -ExecutionPolicy Bypass -File install.ps1
+```
 
-# Or with TLS:
+Adds a firewall rule for port 9898, creates a Startup folder auto-launcher, and starts immediately.
+
+### With TLS
+
+```powershell
 powershell -ExecutionPolicy Bypass -File install.ps1 -TLS
 ```
 
-### macOS / Linux
+### Service Management
+
+```powershell
+taskkill /F /IM pythonw.exe          # Stop
+.\Start-BrainJack.bat               # Start (Desktop shortcut)
+.\install.ps1 -Uninstall            # Remove everything
+```
+
+</details>
+
+<details>
+<summary><strong>Linux</strong></summary>
+
+### Prerequisites
+
+| Requirement | Check | Install |
+|-------------|-------|---------|
+| Python 3.10+ | `python3 --version` | Your package manager |
+| xdotool (X11) | `which xdotool` | `sudo apt install xdotool` |
+| ydotool (Wayland) | `which ydotool` | `sudo apt install ydotool` |
+
+The installer auto-detects X11 vs Wayland.
+
+**Wayland**: `sudo usermod -aG input $USER` then re-login.
+
+### Install
 
 ```bash
-git clone https://github.com/scrappylabsai/brainjack-agent.git
-cd brainjack-agent
-
-# Install (creates venv, generates auth token, installs service)
+git clone https://github.com/scrappylabsai/brainjack-service.git
+cd brainjack-service
 ./install.sh
-
-# Or with TLS:
-./install.sh --tls
 ```
 
-The installer:
-1. Creates a Python venv and installs dependencies
-2. Generates a secure auth token (saved to `.env`)
-3. Sets up auto-start (Startup folder on Windows / launchd on macOS / systemd on Linux)
-4. Configures firewall rules (Windows) or installs input tools (Linux)
-
-> **macOS users:** You must grant Accessibility permission for keystroke injection to work. See the [detailed macOS install guide](docs/INSTALL-MACOS.md) for step-by-step instructions, troubleshooting, and a verification script.
-
-After install, the agent is running on port `9898`. The auth token is printed to stdout -- copy it to your client app.
-
-### Manual Start
+### Service Management
 
 ```bash
-# Activate venv
-source .venv/bin/activate
-
-# Run directly
-python agent.py
-
-# With options
-python agent.py --host 0.0.0.0 --port 9898 --tls-cert certs/brainjack.pem --tls-key certs/brainjack-key.pem
+systemctl --user status brainjack-agent      # Status
+systemctl --user restart brainjack-agent     # Restart
+journalctl --user -u brainjack-agent -f      # Logs
+systemctl --user enable brainjack-agent      # Enable on boot
 ```
 
-## Protocol
+</details>
 
-All commands are JSON over WebSocket. The agent responds with JSON.
+<details>
+<summary><strong>Agent-Friendly Quick Start</strong></summary>
 
-### Authentication
+If you're using an AI coding agent, paste this and let it handle everything:
 
-```json
-// Option 1: Query string
-// Connect to ws://localhost:9898?token=YOUR_TOKEN
-
-// Option 2: First message handshake
-{"cmd": "auth", "token": "YOUR_TOKEN"}
-// Response: {"ok": true, "authed": true}
+```bash
+python3 --version   # need 3.10+
+git clone https://github.com/scrappylabsai/brainjack-service.git
+cd brainjack-service
+./install.sh
+# macOS: grant Accessibility to "BrainJack" in System Settings
+./docs/verify-macos.sh
+cat .env | grep BRAINJACK_TOKEN
+# Get the iOS app: https://testflight.apple.com/join/z8H86Qfj
 ```
 
-### Commands
+</details>
 
-```json
-// Type text at cursor
-{"cmd": "type", "text": "Hello, world!"}
-
-// Press a single key
-{"cmd": "key", "key": "Return"}
-
-// Key combo (modifiers + key)
-{"cmd": "combo", "keys": "ctrl+c"}
-{"cmd": "combo", "keys": "cmd+shift+s"}
-
-// Get status (active window, hostname, platform)
-{"cmd": "status"}
-// Response: {"device": "myhost", "os": "linux-x11", "active_window": "Terminal"}
-```
-
-### Supported Keys
-
-`Return`, `Tab`, `Escape`, `Backspace`, `Delete`, `Space`, arrow keys, `Home`, `End`, `PageUp`, `PageDown`, `F1`-`F12`, `Insert`, `CapsLock`, `PrintScreen`
-
-### Modifiers
-
-`ctrl`, `alt`, `shift`, `cmd`/`gui`/`meta`/`super` (mapped correctly per platform)
+---
 
 ## Configuration
 
-All config is via `.env` file or environment variables. CLI flags override both.
+All config via `.env` or environment variables:
 
 ```bash
-# Auth (leave empty or "off" to disable)
-BRAINJACK_TOKEN=your-secret-token
-
-# Network
-BRAINJACK_HOST=0.0.0.0
-BRAINJACK_PORT=9898
-
-# TLS (paths to PEM files)
-BRAINJACK_TLS_CERT=
-BRAINJACK_TLS_KEY=
-
-# Reverse proxy mode (binds localhost, trusts XFF, skips TLS)
-BRAINJACK_BEHIND_PROXY=false
-
-# Rate limiting
-BRAINJACK_RATE_LIMIT=30       # Max commands per window
-BRAINJACK_RATE_WINDOW=10      # Window in seconds
-BRAINJACK_RATE_BURST=5        # Burst allowance
-
-# Audit logging
-BRAINJACK_AUDIT_LOG=           # Path to log file (empty = stderr only)
-BRAINJACK_AUDIT_MAX_BYTES=10485760
-BRAINJACK_AUDIT_BACKUP_COUNT=5
+BRAINJACK_TOKEN=your-secret-token    # Auth (empty = disabled)
+BRAINJACK_HOST=0.0.0.0              # Bind address
+BRAINJACK_PORT=9898                 # Port
+BRAINJACK_TLS_CERT=                 # TLS cert path
+BRAINJACK_TLS_KEY=                  # TLS key path
+BRAINJACK_BEHIND_PROXY=false        # Reverse proxy mode
+BRAINJACK_RATE_LIMIT=30             # Commands per window
+BRAINJACK_RATE_WINDOW=10            # Window (seconds)
 ```
 
-## Architecture
+---
 
-```
-agent.py (683 lines, single file)
-├── WebSocket server (websockets library)
-├── Authentication (HMAC token compare, query string or handshake)
-├── Rate limiter (token bucket per IP)
-├── Command dispatcher
-│   ├── inject_text()   → xdotool type / ydotool type / osascript keystroke
-│   ├── inject_key()    → xdotool key / ydotool key / osascript key code
-│   ├── inject_combo()  → modifier + key combos per platform
-│   └── get_context()   → active window name, hostname, platform
-├── Audit logger (JSON lines, rotating file handler)
-└── TLS (stdlib ssl, self-signed cert generation via install.sh)
+## Protocol
+
+JSON over WebSocket. Simple.
+
+```json
+{"cmd": "type", "text": "git status"}           // Type text
+{"cmd": "key", "key": "Return"}                 // Single key
+{"cmd": "combo", "keys": "ctrl+c"}              // Key combo
+{"cmd": "status"}                                // Active window info
 ```
 
-The entire agent is a single Python file with one external dependency (`websockets`). Platform detection is automatic. Key name mapping handles the translation between universal names (ENTER, BACKSPACE) and platform-specific representations (xdotool's `Return`, ydotool's keycode `28`, osascript's key code `36`).
+Auth: `ws://host:9898?token=YOUR_TOKEN` or `{"cmd": "auth", "token": "..."}` as first message.
 
-## Security Model
+---
 
-- **Token auth** is constant-time compared (HMAC) to prevent timing attacks
-- **Audit logs** record connection events and command types but **never log keystroke content**
-- **Rate limiting** prevents abuse from any single IP
-- **TLS** encrypts the WebSocket connection (self-signed certs generated by installer, or bring your own)
-- **Proxy mode** lets you put nginx/caddy/Cloudflare Tunnel in front for proper certs
+## Ecosystem
 
-This is designed for private networks. The agent types keystrokes into your computer -- treat the auth token like a password.
+| Component | What |
+|-----------|------|
+| **[BrainJack Service](https://github.com/scrappylabsai/brainjack-service)** | This repo — keystroke injection daemon |
+| **[BrainJack iOS App](https://testflight.apple.com/join/z8H86Qfj)** | Voice control with ASR, agent mode, multi-device |
+| **[BrainJack Dongle](mailto:brian@scrappylabs.ai)** | ESP32-S3 USB HID — zero software on target |
+| **[brainjack.ai](https://brainjack.ai)** | Website, interactive demo, setup guide |
 
-## Platform Requirements
-
-| Platform | Tool | Install |
-|----------|------|---------|
-| Windows | None | Built-in (Win32 SendInput API via ctypes) |
-| macOS | `osascript` | Built-in (requires Accessibility permission) |
-| Linux (X11) | `xdotool` | `sudo apt install xdotool` or `sudo pacman -S xdotool` |
-| Linux (Wayland) | `ydotool` | `sudo apt install ydotool` or `sudo pacman -S ydotool` |
-
-**macOS note:** System Settings > Privacy & Security > Accessibility -- grant permission to the Python binary (not Terminal). See [docs/INSTALL-MACOS.md](docs/INSTALL-MACOS.md) for the exact path and a verification script (`docs/verify-macos.sh`).
-
-### Windows Notes
-
-No extra tools needed beyond Python 3.10+. The agent uses the native Win32 `SendInput` API via ctypes.
-
-**Why a Startup folder script instead of a Scheduled Task?**
-
-Windows has a quirk: the `SendInput` API can only inject keystrokes into the **interactive desktop** -- the one you see on your monitor. When a process is launched by a Scheduled Task (or via SSH, RDP, or any remote management tool), Windows puts it on a separate, invisible desktop. The process *thinks* it's injecting keystrokes (the API returns success), but nothing appears on screen.
-
-The Startup folder doesn't have this problem. Programs launched from `shell:startup` run in the same desktop session you're looking at, so `SendInput` works as expected.
-
-The installer creates:
-- **`brainjack.vbs`** in your Startup folder -- launches the agent hidden (no console window) every time you log in
-- **`Start-BrainJack.bat`** on your Desktop -- double-click to start manually if the agent isn't running
-
-**Microsoft Account / Windows Hello:**
-
-If you sign into Windows with a Microsoft account (email + PIN/fingerprint/face), auto-login at boot isn't possible without third-party tools. The agent will start automatically once you log in -- you just need to complete the Windows Hello sign-in first. This is a Windows limitation, not a BrainJack one.
-
-**Firewall:**
-
-The installer adds a firewall rule allowing inbound TCP on port 9898 across all network profiles (Private, Public, Domain). Windows often classifies WiFi networks as "Public" even on your home network, so restricting to Private-only would silently block connections.
-
-## Service Management
-
-```powershell
-# Windows
-# Start:     Double-click Start-BrainJack.bat on Desktop
-# Stop:      taskkill /F /IM pythonw.exe
-# Uninstall: .\install.ps1 -Uninstall
-```
-
-```bash
-# macOS (launchd)
-launchctl list com.brainjack.agent
-launchctl unload ~/Library/LaunchAgents/com.brainjack.agent.plist
-launchctl load ~/Library/LaunchAgents/com.brainjack.agent.plist
-
-# Linux (systemd user service)
-systemctl --user status brainjack-agent
-systemctl --user restart brainjack-agent
-journalctl --user -u brainjack-agent -f
-```
-
-## BrainJack Ecosystem
-
-| Component | Description |
-|-----------|-------------|
-| **[BrainJack Service](https://github.com/scrappylabsai/brainjack-agent)** | This repo. WebSocket daemon that injects keystrokes. |
-| **[BrainJack HID](https://github.com/scrappylabsai/brainjack-hid)** | ESP32-S3 USB dongle. Plugs into any computer, receives text over WiFi, types via native USB HID. No software install on target. |
-| **[ShellDrop FAP](https://github.com/scrappylabsai/shelldrop-flipper)** | Flipper Zero app with voice-to-keystroke, fleet commands, and AI input. |
-| **[ShellDrop Bridge](https://github.com/scrappylabsai/shelldrop-bridge)** | ESP32-S2 WiFi bridge firmware for the Flipper Zero WiFi Dev Board. |
-| **[ShellCast](https://github.com/scrappylabsai/shellcast)** | WebSocket audio relay. Push TTS/audio from servers to phones/speakers. |
-
-## Contributing
-
-PRs welcome. The codebase is intentionally small -- a single-file agent with one dependency. If your change adds a dependency, it better be worth it.
-
-1. Fork the repo
-2. Create a feature branch
-3. Submit a PR with a clear description of what and why
+---
 
 ## License
 
@@ -272,4 +328,6 @@ PRs welcome. The codebase is intentionally small -- a single-file agent with one
 
 ---
 
-Built by [ScrappyLabs](https://scrappylabs.ai) | [brainjack.ai](https://brainjack.ai)
+<p align="center">
+  Built by <a href="https://scrappylabs.ai">ScrappyLabs</a> · <a href="https://brainjack.ai">brainjack.ai</a> · <a href="https://brainjack.ai/demo">Interactive Demo</a>
+</p>
