@@ -1,4 +1,4 @@
-# BrainJack Service -- macOS Install Guide
+# BrainJack Agent -- macOS Install Guide
 
 > Tested on macOS 15 (Sequoia) and macOS 26 (Tahoe), Apple Silicon (M-series) and Intel.
 

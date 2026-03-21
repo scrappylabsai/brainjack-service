@@ -6,8 +6,7 @@
     <string>com.brainjack.agent</string>
     <key>ProgramArguments</key>
     <array>
-        <string>AGENT_DIR_PLACEHOLDER/.venv/bin/python</string>
-        <string>AGENT_DIR_PLACEHOLDER/agent.py</string>
+        <string>AGENT_DIR_PLACEHOLDER/BrainJack.app/Contents/MacOS/applet</string>
     </array>
     <key>WorkingDirectory</key>
     <string>AGENT_DIR_PLACEHOLDER</string>
