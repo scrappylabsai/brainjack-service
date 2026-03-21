@@ -322,6 +322,18 @@ Auth: `ws://host:9898?token=YOUR_TOKEN` or `{"cmd": "auth", "token": "..."}` as 
 
 ---
 
+## Talk to Us
+
+We're a small team and we build what people need. Custom firmware, workflow integrations, accessibility adaptations, enterprise setups — if you have an idea, we want to hear it.
+
+- **[GitHub Discussions](https://github.com/scrappylabsai/brainjack-service/discussions)** — feature requests, show off your setup, get help
+- **Email** — [brian@scrappylabs.ai](mailto:brian@scrappylabs.ai) — direct line, real human, fast reply
+- **Beta testers** — [join on TestFlight](https://testflight.apple.com/join/z8H86Qfj) and tell us what's broken or missing
+
+BrainJack is built by people who use it every day. Your feedback shapes what ships next.
+
+---
+
 ## License
 
 [Business Source License 1.1](LICENSE) — free for personal and non-commercial use. Converts to Apache 2.0 on 2030-03-09. Commercial use requires a [license from ScrappyLabs](mailto:brian@scrappylabs.ai).
