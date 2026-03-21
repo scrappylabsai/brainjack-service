@@ -59,7 +59,7 @@ The installer creates a venv, installs one dependency (`websockets`), generates 
 <details>
 <summary><strong>Path B: Use the USB Dongle (everyone)</strong> — plug and play</summary>
 
-The BrainJack dongle is a pre-flashed ESP32-S3 that appears as a standard USB keyboard. Plug it into any computer. The target machine thinks someone is typing on a keyboard.
+The BrainJack dongle is a pre-flashed USB device that appears as a standard keyboard. Plug it into any computer. The target machine thinks someone is typing on a keyboard.
 
 - No software to install on the target
 - No drivers, no admin rights
@@ -119,7 +119,7 @@ Nothing is locked in. Your ASR server. Your LLM. Your hardware. Your network.
 | **ASR** | Any OpenAI-compatible endpoint | Whisper.cpp, Qwen-ASR, Faster Whisper |
 | **LLM** | Any OpenAI-compatible endpoint | Ollama, vLLM, Claude, GPT |
 | **Target** | Any OS with the service or dongle | macOS, Windows, Linux, headless servers |
-| **Connection** | WiFi, BLE, or USB HID | LAN WebSocket, Bluetooth, ESP32 dongle |
+| **Connection** | WiFi, BLE, or USB HID | LAN WebSocket, Bluetooth, BrainJack dongle |
 
 Your data never leaves your network unless you want it to.
 
@@ -317,7 +317,7 @@ Auth: `ws://host:9898?token=YOUR_TOKEN` or `{"cmd": "auth", "token": "..."}` as 
 |-----------|------|
 | **[BrainJack Service](https://github.com/scrappylabsai/brainjack-service)** | This repo — keystroke injection daemon |
 | **[BrainJack iOS App](https://testflight.apple.com/join/z8H86Qfj)** | Voice control with ASR, agent mode, multi-device |
-| **[BrainJack Dongle](mailto:brian@scrappylabs.ai)** | ESP32-S3 USB HID — zero software on target |
+| **[BrainJack Dongle](mailto:brian@scrappylabs.ai)** | USB dongle — zero software on target |
 | **[brainjack.ai](https://brainjack.ai)** | Website, interactive demo, setup guide |
 
 ---
