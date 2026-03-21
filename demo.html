@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BrainJack — Voice Control for AI Agent Users</title>
+  <meta name="description" content="Your voice becomes keystrokes. Your AI agent installs it. BrainJack gives you voice control over any computer.">
+  <meta property="og:title" content="BrainJack — Voice Control for AI Agent Users">
+  <meta property="og:description" content="Your voice becomes keystrokes. Your AI agent installs it.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://brainjack.ai/demo">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0d0a;
+      --surface: #1a1714;
+      --surface-2: #242019;
+      --text: #ede8e0;
+      --text-mid: #b0a898;
+      --text-muted: #8a8178;
+      --accent: #e8a848;
+      --accent-hover: #f0b860;
+      --accent-dim: #b07830;
+      --green: #5cb870;
+      --red: #d45050;
+      --blue: #5b9bd5;
+      --border: #2a2520;
+      --border-hover: #3d3530;
+      --font: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 clamp(1.5rem, 4vw, 3rem);
+    }
+
+    section {
+      padding: clamp(4rem, 10vh, 8rem) 0;
+      position: relative;
+    }
+
+    /* ── Scroll Reveal ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Typography ── */
+    h1 {
+      font-size: clamp(2.6rem, 6vw, 4.2rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.08;
+    }
+    h2 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+    }
+    h3 {
+      font-size: clamp(1.1rem, 2vw, 1.4rem);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+    }
+    .subtitle {
+      font-size: clamp(1.05rem, 2vw, 1.25rem);
+      color: var(--text-mid);
+      max-width: 600px;
+      line-height: 1.65;
+    }
+
+    /* ── Narration Bar ── */
+    .narration {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding: 1.2rem 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      max-width: 640px;
+    }
+    .narration-btn {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s;
+    }
+    .narration-btn:hover, .narration-btn:focus-visible {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    .narration-btn:focus-visible {
+      outline: 2px solid var(--accent-hover);
+      outline-offset: 2px;
+    }
+    .narration-btn svg { width: 18px; height: 18px; }
+    .narration-text {
+      font-size: 0.95rem;
+      color: var(--text-mid);
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    /* ── Hero ── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding-top: 4rem;
+    }
+    #hero h1 span { color: var(--accent); }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.85rem;
+      color: var(--text-mid);
+      margin-bottom: 2rem;
+    }
+    .hero-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2.5rem;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 1.8rem;
+      border-radius: 10px;
+      font-family: var(--font);
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      border: none;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border-hover);
+    }
+    .btn-secondary:hover { background: var(--border-hover); }
+
+    /* ── Flow Timeline ── */
+    #flow { border-top: 1px solid var(--border); }
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    .flow-step {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      position: relative;
+      transition: border-color 0.3s;
+    }
+    .flow-step:hover { border-color: var(--accent-dim); }
+    .flow-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--bg);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+    .flow-step h3 { margin-bottom: 0.5rem; }
+    .flow-step p { color: var(--text-muted); font-size: 0.9rem; }
+    .flow-connector {
+      display: none; /* shown on desktop via ::after on flow-step */
+    }
+    .flow-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: -1.1rem;
+      top: 50%;
+      width: 1.2rem;
+      height: 2px;
+      background: var(--border-hover);
+    }
+
+    /* ── Terminal Mockup ── */
+    .terminal {
+      background: #0c0c0c;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      overflow: hidden;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      line-height: 1.7;
+      max-width: 720px;
+      margin-top: 2rem;
+    }
+    .terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 12px 16px;
+      background: #1a1a1a;
+      border-bottom: 1px solid #2a2a2a;
+    }
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .terminal-dot.red { background: #ff5f57; }
+    .terminal-dot.yellow { background: #febc2e; }
+    .terminal-dot.green { background: #28c840; }
+    .terminal-title {
+      flex: 1;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #888;
+    }
+    .terminal-body {
+      padding: 1.2rem 1.5rem;
+      overflow-x: auto;
+    }
+    .terminal-body .prompt { color: var(--green); }
+    .terminal-body .cmd { color: #e0e0e0; }
+    .terminal-body .output { color: #888; }
+    .terminal-body .success { color: var(--green); }
+    .terminal-body .highlight { color: var(--accent); }
+    .terminal-body .comment { color: #555; }
+    .terminal-body .line {
+      display: block;
+      min-height: 1.7em;
+    }
+    .terminal-body .line.typing .cmd {
+      border-right: 2px solid var(--accent);
+      animation: blink 0.8s step-end infinite;
+    }
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+
+    /* ── Phone Mockup ── */
+    .phone {
+      width: 280px;
+      background: #0f1419;
+      border-radius: 36px;
+      border: 3px solid #374151;
+      padding: 16px;
+      position: relative;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+    }
+    .phone-notch {
+      width: 100px;
+      height: 28px;
+      background: #000;
+      border-radius: 0 0 16px 16px;
+      margin: -16px auto 12px;
+    }
+    .phone-screen {
+      background: #0f1419;
+      border-radius: 20px;
+      padding: 16px;
+      min-height: 420px;
+    }
+    .phone .device-card {
+      background: #1a2332;
+      border: 1px solid #374151;
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .phone .device-status {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 8px #22c55e66;
+    }
+    .phone .device-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #f0f4f8;
+    }
+    .phone .device-info {
+      font-size: 0.7rem;
+      color: #8899aa;
+    }
+    .phone .listening-indicator {
+      text-align: center;
+      padding: 3rem 0;
+    }
+    .phone .listening-text {
+      color: #3b82f6;
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .phone .waveform {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      height: 48px;
+    }
+    .phone .waveform .bar {
+      width: 4px;
+      border-radius: 4px;
+      background: #3b82f6;
+      animation: wave 1.2s ease-in-out infinite;
+    }
+    .phone .waveform .bar:nth-child(1) { height: 12px; animation-delay: 0s; }
+    .phone .waveform .bar:nth-child(2) { height: 28px; animation-delay: 0.1s; }
+    .phone .waveform .bar:nth-child(3) { height: 40px; animation-delay: 0.2s; }
+    .phone .waveform .bar:nth-child(4) { height: 32px; animation-delay: 0.3s; }
+    .phone .waveform .bar:nth-child(5) { height: 20px; animation-delay: 0.4s; }
+    .phone .waveform .bar:nth-child(6) { height: 36px; animation-delay: 0.5s; }
+    .phone .waveform .bar:nth-child(7) { height: 16px; animation-delay: 0.6s; }
+    @keyframes wave {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(0.4); }
+    }
+    .phone .voice-text {
+      margin-top: 1.5rem;
+      padding: 12px 16px;
+      background: #243044;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      color: #f0f4f8;
+      line-height: 1.5;
+    }
+    .phone .voice-text .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: #3b82f6;
+      animation: blink 0.8s step-end infinite;
+      vertical-align: text-bottom;
+    }
+
+    /* ── Split Layout ── */
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(2rem, 5vw, 4rem);
+      align-items: center;
+    }
+    .split-text { max-width: 500px; }
+
+    /* ── Voice Flow ── */
+    .voice-flow {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+    .voice-box {
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+    }
+    .voice-input {
+      background: #1a2332;
+      border: 1px solid #3b82f6;
+      color: #60a5fa;
+    }
+    .voice-arrow {
+      color: var(--accent);
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    .voice-output {
+      background: var(--surface);
+      border: 1px solid var(--green);
+      color: var(--green);
+    }
+
+    /* ── BYOK Grid ── */
+    .byok-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.2rem;
+      margin-top: 2.5rem;
+    }
+    .byok-card {
+      padding: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      transition: border-color 0.3s;
+    }
+    .byok-card:hover { border-color: var(--accent-dim); }
+    .byok-icon {
+      font-size: 1.8rem;
+      margin-bottom: 0.8rem;
+    }
+    .byok-card h3 { margin-bottom: 0.4rem; font-size: 1rem; }
+    .byok-card p { color: var(--text-muted); font-size: 0.85rem; }
+
+    /* ── Comparison Table ── */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2rem;
+      font-size: 0.85rem;
+    }
+    .compare-table th {
+      text-align: left;
+      padding: 0.8rem 1rem;
+      background: var(--surface-2);
+      border-bottom: 2px solid var(--border-hover);
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .compare-table th:first-child { border-radius: 8px 0 0 0; }
+    .compare-table th:last-child { border-radius: 0 8px 0 0; }
+    .compare-table th.highlight-col {
+      background: var(--accent-dim);
+      color: var(--bg);
+    }
+    .compare-table td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-mid);
+      vertical-align: top;
+    }
+    .compare-table td:first-child {
+      color: var(--text);
+      font-weight: 500;
+    }
+    .compare-table td.highlight-col {
+      background: rgba(232, 168, 72, 0.06);
+      color: var(--text);
+    }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table .yes { color: var(--green); }
+    .compare-table .no { color: var(--red); }
+    .compare-scroll { overflow-x: auto; margin-top: 2rem; }
+
+    /* ── Works With ── */
+    .compat-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .compat-tag {
+      padding: 0.6rem 1.2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-mid);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .compat-tag:hover {
+      border-color: var(--accent-dim);
+      color: var(--text);
+    }
+
+    /* ── Agent Install Block ── */
+    .install-block {
+      background: #0c0c0c;
+      border: 2px solid var(--accent-dim);
+      border-radius: 14px;
+      padding: 2rem;
+      margin-top: 2rem;
+      max-width: 700px;
+      position: relative;
+    }
+    .install-block .label-tag {
+      position: absolute;
+      top: -12px;
+      left: 20px;
+      background: var(--accent);
+      color: var(--bg);
+      padding: 0.2rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .install-block pre {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      line-height: 1.8;
+      color: #e0e0e0;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .install-block .copy-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.4rem 0.8rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border-hover);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-family: var(--font);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .install-block .copy-btn:hover {
+      color: var(--text);
+      border-color: var(--accent-dim);
+    }
+
+    /* ── Prereq Checklist ── */
+    .prereqs {
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      max-width: 520px;
+    }
+    .prereq {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.8rem 1.2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      transition: border-color 0.3s;
+    }
+    .prereq.checked { border-color: var(--green); }
+    .prereq .check {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--border-hover);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .prereq.checked .check {
+      border-color: var(--green);
+      background: var(--green);
+    }
+    .prereq .check svg {
+      width: 14px;
+      height: 14px;
+      color: var(--bg);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .prereq.checked .check svg { opacity: 1; }
+    .prereq code {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    /* ── CTA Section ── */
+    #cta {
+      text-align: center;
+      padding: clamp(5rem, 12vh, 10rem) 0;
+    }
+    #cta h2 { margin-bottom: 1rem; }
+    #cta .subtitle { margin: 0 auto 2.5rem; }
+    .cta-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* ── Play All Controls ── */
+    .play-all-bar {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.8rem 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border-hover);
+      border-radius: 100px;
+      backdrop-filter: blur(16px);
+      z-index: 100;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .play-all-bar.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .play-all-bar button {
+      padding: 0.5rem 1.2rem;
+      border-radius: 100px;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+      font-family: var(--font);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .play-all-bar button:hover {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    .play-all-bar .progress-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .flow-steps { grid-template-columns: 1fr; }
+      .flow-step:not(:last-child)::after { display: none; }
+      .split { grid-template-columns: 1fr; }
+      .split .phone { margin: 0 auto; }
+      .byok-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .byok-grid { grid-template-columns: 1fr; }
+      .voice-flow { flex-direction: column; }
+      .voice-arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════ HERO ════════ -->
+  <section id="hero">
+    <div class="container">
+      <div class="reveal">
+        <div class="hero-badge">
+          <span class="dot"></span>
+          TestFlight Beta Live
+        </div>
+        <h1>Your voice.<br>Your agent.<br><span>Any computer.</span></h1>
+        <p class="subtitle" style="margin-top: 1.5rem;">
+          BrainJack turns speech into keystrokes. Not dictation&mdash;real keyboard input
+          that works with any app. Your AI agent installs it in one command.
+        </p>
+        <div class="narration" data-audio="audio/narration-hero.mp3">
+          <button class="narration-btn" aria-label="Play narration" onclick="playNarration(this)">
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
+          </button>
+          <p class="narration-text">
+            "BrainJack gives you voice control over any computer. Not dictation&mdash;real control.
+            Your voice becomes keystrokes. And if you're running an AI agent? It installs itself."
+          </p>
+        </div>
+        <div class="hero-cta">
+          <a href="https://testflight.apple.com/join/z8H86Qfj" class="btn btn-primary">Get the App</a>
+          <a href="#install" class="btn btn-secondary">Agent Install Guide</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ FLOW ════════ -->
+  <section id="flow">
+    <div class="container">
+      <div class="reveal">
+        <p class="label">How it works</p>
+        <h2 style="margin-top: 0.5rem;">Three steps. Five seconds.</h2>
+      </div>
+      <div class="flow-steps">
+        <div class="flow-step reveal">
+          <div class="flow-num">1</div>
+          <h3>Check Prerequisites</h3>
+          <p>Python 3.10+, Git, and on Mac&mdash;Xcode CLI Tools. Your agent verifies these.</p>
+        </div>
+        <div class="flow-step reveal">
+          <div class="flow-num">2</div>
+          <h3>One-Command Install</h3>
+          <p>Clone the repo, run the installer. Service starts, QR code appears.</p>
+        </div>
+        <div class="flow-step reveal">
+          <div class="flow-num">3</div>
+          <h3>Scan &amp; Talk</h3>
+          <p>Point your iPhone at the QR code. You're connected. Start speaking.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ PREREQUISITES ════════ -->
+  <section id="prereqs-section">
+    <div class="container">
+      <div class="split">
+        <div class="split-text reveal">
+          <p class="label">Step 1</p>
+          <h2 style="margin-top: 0.5rem;">Prerequisites</h2>
+          <p class="subtitle" style="margin-top: 1rem;">
+            Three things your agent checks before installing. All standard tools&mdash;most Macs
+            and Linux boxes already have them.
+          </p>
+          <div class="prereqs" id="prereq-list">
+            <div class="prereq" data-delay="0">
+              <span class="check">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span>Python 3.10+</span>
+              <code>python3 --version</code>
+            </div>
+            <div class="prereq" data-delay="200">
+              <span class="check">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span>Git</span>
+              <code>git --version</code>
+            </div>
+            <div class="prereq" data-delay="400">
+              <span class="check">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span>Xcode CLI Tools <span style="color: var(--text-muted); font-size: 0.8rem;">(macOS only)</span></span>
+              <code>xcode-select -p</code>
+            </div>
+          </div>
+          <div class="narration" data-audio="audio/narration-prereqs.mp3" style="margin-top: 1.5rem;">
+            <button class="narration-btn" aria-label="Play narration" onclick="playNarration(this)">
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
+            </button>
+            <p class="narration-text">
+              "Before installing, your agent checks three things. Python 3.10 or newer. Git. And on Mac,
+              Xcode command-line tools. Three quick checks, all automatable."
+            </p>
+          </div>
+        </div>
+        <div class="reveal" style="display: flex; justify-content: center;">
+          <div class="terminal" style="width: 100%; max-width: 400px;">
+            <div class="terminal-bar">
+              <span class="terminal-dot red"></span>
+              <span class="terminal-dot yellow"></span>
+              <span class="terminal-dot green"></span>
+              <span class="terminal-title">agent &mdash; preflight</span>
+            </div>
+            <div class="terminal-body" style="font-size: 0.78rem;">
+              <span class="line"><span class="prompt">$</span> <span class="cmd">python3 --version</span></span>
+              <span class="line"><span class="output">Python 3.13.2</span> <span class="success">&check;</span></span>
+              <span class="line"></span>
+              <span class="line"><span class="prompt">$</span> <span class="cmd">git --version</span></span>
+              <span class="line"><span class="output">git version 2.47.1</span> <span class="success">&check;</span></span>
+              <span class="line"></span>
+              <span class="line"><span class="prompt">$</span> <span class="cmd">xcode-select -p</span></span>
+              <span class="line"><span class="output">/Library/.../Developer</span> <span class="success">&check;</span></span>
+              <span class="line"></span>
+              <span class="line"><span class="success">All prerequisites met.</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ INSTALL ════════ -->
+  <section id="install-section">
+    <div class="container">
+      <div class="reveal">
+        <p class="label">Step 2</p>
+        <h2 style="margin-top: 0.5rem;">One command. Five seconds.</h2>
+        <p class="subtitle" style="margin-top: 1rem;">
+          Clone the repo and run the installer. It creates a virtual environment,
+          installs the single dependency, generates your auth token, and starts the service.
+          A QR code appears for instant phone pairing.
+        </p>
+      </div>
+      <div class="terminal reveal">
+        <div class="terminal-bar">
+          <span class="terminal-dot red"></span>
+          <span class="terminal-dot yellow"></span>
+          <span class="terminal-dot green"></span>
+          <span class="terminal-title">Terminal</span>
+        </div>
+        <div class="terminal-body" id="install-terminal">
+          <span class="line"><span class="prompt">$</span> <span class="cmd">git clone https://github.com/scrappylabsai/brainjack-service.git</span></span>
+          <span class="line"><span class="output">Cloning into 'brainjack-service'...</span></span>
+          <span class="line"><span class="output">done.</span></span>
+          <span class="line"></span>
+          <span class="line"><span class="prompt">$</span> <span class="cmd">cd brainjack-service && ./install.sh</span></span>
+          <span class="line"></span>
+          <span class="line"><span class="highlight">&#x1F9E0;</span> <span class="output">Creating virtual environment...</span></span>
+          <span class="line"><span class="highlight">&#x1F4E6;</span> <span class="output">Installing dependencies...</span></span>
+          <span class="line"><span class="highlight">&#x1F511;</span> <span class="output">Generated auth token:</span> <span class="success">bjk_a8f3c91d...</span></span>
+          <span class="line"><span class="highlight">&#x1F680;</span> <span class="output">BrainJack service started on</span> <span class="success">:9898</span></span>
+          <span class="line"></span>
+          <span class="line"><span class="highlight">&#x1F4F1;</span> <span class="output">Scan this QR code to connect your phone:</span></span>
+          <span class="line"></span>
+          <span class="line"><span class="output" style="letter-spacing: 0.2em; color: #e0e0e0;">  &#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;  &#x2588;&#x2588; &#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;</span></span>
+          <span class="line"><span class="output" style="letter-spacing: 0.2em; color: #e0e0e0;">  &#x2588;     &#x2588;  &#x2588;  &#x2588;     &#x2588;</span></span>
+          <span class="line"><span class="output" style="letter-spacing: 0.2em; color: #e0e0e0;">  &#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;  &#x2588;  &#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;</span></span>
+          <span class="line"></span>
+          <span class="line"><span class="success">&#x2714; Ready. Open BrainJack on your iPhone and scan.</span></span>
+        </div>
+      </div>
+      <div class="narration reveal" data-audio="audio/narration-install.mp3">
+        <button class="narration-btn" aria-label="Play narration" onclick="playNarration(this)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
+        </button>
+        <p class="narration-text">
+          "One command. Clone the repo, run the installer. In about five seconds, the service
+          is running, a QR code is on screen, and you're ready to pair your phone."
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ CONNECT ════════ -->
+  <section id="connect-section">
+    <div class="container">
+      <div class="split">
+        <div class="split-text reveal">
+          <p class="label">Step 3</p>
+          <h2 style="margin-top: 0.5rem;">Scan. Connected. Done.</h2>
+          <p class="subtitle" style="margin-top: 1rem;">
+            Open BrainJack on your iPhone. Point the camera at the QR code.
+            The app finds your computer, authenticates with your token, and
+            you're live. Start talking.
+          </p>
+          <div class="narration" data-audio="audio/narration-connect.mp3" style="margin-top: 1.5rem;">
+            <button class="narration-btn" aria-label="Play narration" onclick="playNarration(this)">
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
+            </button>
+            <p class="narration-text">
+              "Open BrainJack on your iPhone. Scan the QR code. That's it&mdash;you're
+              connected. Start talking."
+            </p>
+          </div>
+        </div>
+        <div class="reveal" style="display: flex; justify-content: center;">
+          <div class="phone">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <div class="device-card">
+                <span class="device-status"></span>
+                <div>
+                  <div class="device-name">Rick's Mac Neo</div>
+                  <div class="device-info">192.168.4.xxx &middot; macOS &middot; Connected</div>
+                </div>
+              </div>
+              <div class="listening-indicator">
+                <div class="listening-text">Listening...</div>
+                <div class="waveform">
+                  <div class="bar"></div>
+                  <div class="bar"></div>
+                  <div class="bar"></div>
+                  <div class="bar"></div>
+                  <div class="bar"></div>
+                  <div class="bar"></div>
+                  <div class="bar"></div>
+                </div>
+              </div>
+              <div class="voice-text">
+                "Open terminal and run git status"<span class="cursor"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ VOICE CONTROL ════════ -->
+  <section id="voice-section">
+    <div class="container">
+      <div class="reveal">
+        <p class="label">The magic</p>
+        <h2 style="margin-top: 0.5rem;">Voice in. Keystrokes out.</h2>
+        <p class="subtitle" style="margin-top: 1rem;">
+          Not clipboard paste. Not dictation. Real keyboard input that works with
+          any app, any terminal, any agent. BrainJack types what you say, exactly
+          where your cursor is.
+        </p>
+      </div>
+      <div class="voice-flow reveal">
+        <div class="voice-box voice-input">
+          &#x1F3A4; &nbsp;"open terminal and run git status"
+        </div>
+        <div class="voice-arrow">&rarr;</div>
+        <div class="voice-box voice-output">
+          &#x2328; &nbsp;Cmd+Space &rarr; "terminal" &rarr; Enter &rarr; "git status" &rarr; Enter
+        </div>
+      </div>
+      <div class="narration reveal" data-audio="audio/narration-voice.mp3" style="margin-top: 2rem;">
+        <button class="narration-btn" aria-label="Play narration" onclick="playNarration(this)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
+        </button>
+        <p class="narration-text">
+          "Say 'open terminal and run git status.' BrainJack converts your voice
+          into real keyboard input. Not clipboard paste&mdash;actual keystrokes that
+          work everywhere."
+        </p>
+      </div>
+      <div class="reveal" style="margin-top: 3rem;">
+        <h3 style="margin-bottom: 1rem;">Works with everything</h3>
+        <div class="compat-grid">
+          <span class="compat-tag">Claude Code</span>
+          <span class="compat-tag">Cursor</span>
+          <span class="compat-tag">VS Code</span>
+          <span class="compat-tag">Terminal</span>
+          <span class="compat-tag">Vim / Neovim</span>
+          <span class="compat-tag">tmux</span>
+          <span class="compat-tag">Emacs</span>
+          <span class="compat-tag">Any Text Field</span>
+          <span class="compat-tag">Any App</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ BYOK ════════ -->
+  <section id="byok-section">
+    <div class="container">
+      <div class="reveal">
+        <p class="label">Your stack</p>
+        <h2 style="margin-top: 0.5rem;">Bring your own everything.</h2>
+        <p class="subtitle" style="margin-top: 1rem;">
+          BrainJack doesn't lock you in. Point it at your servers, your models,
+          your hardware. You own the whole pipeline.
+        </p>
+      </div>
+      <div class="byok-grid">
+        <div class="byok-card reveal">
+          <div class="byok-icon">&#x1F399;</div>
+          <h3>Speech Recognition</h3>
+          <p>Your Whisper server, your Qwen-ASR, any OpenAI-compatible ASR endpoint.</p>
+        </div>
+        <div class="byok-card reveal">
+          <div class="byok-icon">&#x1F9E0;</div>
+          <h3>Language Model</h3>
+          <p>Local Ollama, cloud API, self-hosted vLLM. Any model that speaks OpenAI format.</p>
+        </div>
+        <div class="byok-card reveal">
+          <div class="byok-icon">&#x1F4BB;</div>
+          <h3>Target Computer</h3>
+          <p>macOS, Windows, Linux. Desktop or headless server. Multiple machines at once.</p>
+        </div>
+        <div class="byok-card reveal">
+          <div class="byok-icon">&#x1F50C;</div>
+          <h3>Connection Method</h3>
+          <p>WiFi WebSocket, BLE, USB HID dongle. Works on-prem, no cloud required.</p>
+        </div>
+      </div>
+      <div class="narration reveal" data-audio="audio/narration-byok.mp3" style="margin-top: 2rem;">
+        <button class="narration-btn" aria-label="Play narration" onclick="playNarration(this)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
+        </button>
+        <p class="narration-text">
+          "Bring your own everything. Your speech recognition. Your language model.
+          Your hardware. Nothing's locked in. You own the entire pipeline."
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ COMPARISON ════════ -->
+  <section id="compare-section" style="border-top: 1px solid var(--border);">
+    <div class="container">
+      <div class="reveal">
+        <p class="label">How we compare</p>
+        <h2 style="margin-top: 0.5rem;">Not another dictation app.</h2>
+        <p class="subtitle" style="margin-top: 1rem;">
+          BrainJack injects keystrokes at the OS level. It controls computers,
+          not just text fields. Here's how it stacks up.
+        </p>
+      </div>
+      <div class="compare-scroll reveal">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th class="highlight-col">BrainJack</th>
+              <th>Wispr Flow</th>
+              <th>Talon</th>
+              <th>Dragon</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>What it does</td>
+              <td class="highlight-col">Voice &rarr; keystrokes (control)</td>
+              <td>Voice &rarr; polished text</td>
+              <td>Voice &rarr; scripted commands</td>
+              <td>Voice &rarr; text</td>
+            </tr>
+            <tr>
+              <td>Works with agents</td>
+              <td class="highlight-col"><span class="yes">Any terminal, any app</span></td>
+              <td><span class="no">Text fields only</span></td>
+              <td>Custom scripting needed</td>
+              <td><span class="no">Text fields only</span></td>
+            </tr>
+            <tr>
+              <td>Privacy</td>
+              <td class="highlight-col"><span class="yes">100% local possible</span></td>
+              <td><span class="no">Cloud-only, sends screenshots to 15+ third parties</span></td>
+              <td><span class="yes">Local</span></td>
+              <td>Cloud or $700 desktop</td>
+            </tr>
+            <tr>
+              <td>Linux</td>
+              <td class="highlight-col"><span class="yes">Yes</span></td>
+              <td><span class="no">No</span></td>
+              <td><span class="yes">Yes</span></td>
+              <td><span class="no">No</span></td>
+            </tr>
+            <tr>
+              <td>Pricing</td>
+              <td class="highlight-col"><span class="yes">~$25/yr</span></td>
+              <td>$144/yr</td>
+              <td>$15&ndash;25/mo (beta)</td>
+              <td>$55/mo or $700</td>
+            </tr>
+            <tr>
+              <td>Offline mode</td>
+              <td class="highlight-col"><span class="yes">Yes</span></td>
+              <td><span class="no">No</span></td>
+              <td><span class="yes">Yes</span></td>
+              <td>Desktop only</td>
+            </tr>
+            <tr>
+              <td>Hardware option</td>
+              <td class="highlight-col"><span class="yes">ESP32 USB dongle</span></td>
+              <td><span class="no">None</span></td>
+              <td><span class="no">None</span></td>
+              <td>USB mic</td>
+            </tr>
+            <tr>
+              <td>Setup time</td>
+              <td class="highlight-col"><span class="yes">5 seconds</span></td>
+              <td>Account + download</td>
+              <td>Hours of training</td>
+              <td>Account + download</td>
+            </tr>
+            <tr>
+              <td>BYOK</td>
+              <td class="highlight-col"><span class="yes">Your ASR, LLM, hardware</span></td>
+              <td><span class="no">Locked to their cloud</span></td>
+              <td>Partial</td>
+              <td><span class="no">Proprietary</span></td>
+            </tr>
+            <tr>
+              <td>Resource usage</td>
+              <td class="highlight-col"><span class="yes">~10MB RAM</span></td>
+              <td><span class="no">Electron, 8%+ CPU idle</span></td>
+              <td>Moderate</td>
+              <td>Heavy</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="narration reveal" data-audio="audio/narration-compare.mp3" style="margin-top: 2rem;">
+        <button class="narration-btn" aria-label="Play narration" onclick="playNarration(this)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
+        </button>
+        <p class="narration-text">
+          "Wispr Flow raised 81 million dollars and still can't run offline. They send your audio
+          and screenshots to fifteen third parties. BrainJack runs on your network, with your
+          models, for a fraction of the price."
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ AGENT INSTALL ════════ -->
+  <section id="install">
+    <div class="container">
+      <div class="reveal">
+        <p class="label">For your AI agent</p>
+        <h2 style="margin-top: 0.5rem;">Tell your agent to run this.</h2>
+        <p class="subtitle" style="margin-top: 1rem;">
+          If you're using Claude Code, Cursor, Windsurf, or any coding agent&mdash;paste
+          this block. Your agent handles the rest.
+        </p>
+      </div>
+
+      <div class="install-block reveal">
+        <span class="label-tag">Agent-Ready Install</span>
+        <button class="copy-btn" onclick="copyInstall()" id="copy-btn">Copy</button>
+        <pre id="install-code"><span style="color: #555;"># Prerequisites — check these first</span>
+python3 --version   <span style="color: #555;"># need 3.10+</span>
+git --version
+xcode-select -p     <span style="color: #555;"># macOS only</span>
+
+<span style="color: #555;"># Install BrainJack (macOS / Linux)</span>
+git clone https://github.com/scrappylabsai/brainjack-service.git
+cd brainjack-service
+./install.sh
+
+<span style="color: #555;"># Install BrainJack (Windows PowerShell)</span>
+<span style="color: #555;"># git clone https://github.com/scrappylabsai/brainjack-service.git</span>
+<span style="color: #555;"># cd brainjack-service</span>
+<span style="color: #555;"># .\install.ps1</span>
+
+<span style="color: #555;"># Post-install (macOS): grant Accessibility permission</span>
+<span style="color: #555;"># System Settings → Privacy & Security → Accessibility → add "BrainJack"</span>
+
+<span style="color: #555;"># Verify</span>
+./docs/verify-macos.sh
+
+<span style="color: #555;"># Your auth token is in .env (BRAINJACK_TOKEN=...)</span>
+<span style="color: #555;"># Service runs on :9898 — scan the QR code with the iOS app</span>
+<span style="color: #555;"># TestFlight: https://testflight.apple.com/join/z8H86Qfj</span></pre>
+      </div>
+
+      <div class="narration reveal" data-audio="audio/narration-agent.mp3" style="margin-top: 2rem;">
+        <button class="narration-btn" aria-label="Play narration" onclick="playNarration(this)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
+        </button>
+        <p class="narration-text">
+          "Copy this block into your agent's chat. It checks prerequisites, clones the
+          repo, runs the installer, and tells you exactly what to do after. Five seconds
+          to running."
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ CTA ════════ -->
+  <section id="cta">
+    <div class="container">
+      <div class="reveal">
+        <h2>Ready to talk to<br>your computer?</h2>
+        <p class="subtitle">
+          Get the app on TestFlight. Install the service with one command.
+          You'll be voice-controlling your agent in under a minute.
+        </p>
+        <div class="cta-buttons">
+          <a href="https://testflight.apple.com/join/z8H86Qfj" class="btn btn-primary">
+            &#x1F4F1; &nbsp;Get on TestFlight
+          </a>
+          <a href="https://github.com/scrappylabsai/brainjack-service" class="btn btn-secondary">
+            &#x2B50; &nbsp;Star on GitHub
+          </a>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 2rem;">
+          BSL 1.1 License &middot; Converts to Apache 2.0 in 2030 &middot;
+          <a href="https://brainjack.ai" style="color: var(--accent); text-decoration: none;">brainjack.ai</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ Floating Play All Bar ════════ -->
+  <div class="play-all-bar" id="play-all-bar">
+    <button onclick="playAll()" id="play-all-btn">&#x25B6; Play Narration</button>
+    <span class="progress-text" id="play-progress"></span>
+  </div>
+
+  <!-- ════════ Audio Elements ════════ -->
+  <audio id="audio-hero" src="audio/narration-hero.mp3" preload="none"></audio>
+  <audio id="audio-prereqs" src="audio/narration-prereqs.mp3" preload="none"></audio>
+  <audio id="audio-install" src="audio/narration-install.mp3" preload="none"></audio>
+  <audio id="audio-connect" src="audio/narration-connect.mp3" preload="none"></audio>
+  <audio id="audio-voice" src="audio/narration-voice.mp3" preload="none"></audio>
+  <audio id="audio-byok" src="audio/narration-byok.mp3" preload="none"></audio>
+  <audio id="audio-compare" src="audio/narration-compare.mp3" preload="none"></audio>
+  <audio id="audio-agent" src="audio/narration-agent.mp3" preload="none"></audio>
+
+  <script>
+    // ── Scroll Reveal ──
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+
+          // Animate prereq checklist
+          if (entry.target.closest('#prereqs-section')) {
+            const prereqs = entry.target.querySelectorAll('.prereq');
+            prereqs.forEach((p, i) => {
+              setTimeout(() => p.classList.add('checked'), 600 + (i * 400));
+            });
+          }
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ── Show play bar after scrolling past hero ──
+    const heroObserver = new IntersectionObserver(([entry]) => {
+      document.getElementById('play-all-bar').classList.toggle('visible', !entry.isIntersecting);
+    }, { threshold: 0.5 });
+    heroObserver.observe(document.getElementById('hero'));
+
+    // ── Narration Playback ──
+    let currentAudio = null;
+
+    function playNarration(btn) {
+      const bar = btn.closest('.narration');
+      const audioSrc = bar.dataset.audio;
+
+      // Stop any playing audio
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        document.querySelectorAll('.narration-btn.playing').forEach(b => b.classList.remove('playing'));
+      }
+
+      // Find matching audio element
+      const audioId = 'audio-' + audioSrc.replace('audio/narration-', '').replace('.mp3', '');
+      const audio = document.getElementById(audioId);
+      if (!audio) return;
+
+      audio.play().catch(() => {});
+      currentAudio = audio;
+      btn.classList.add('playing');
+
+      audio.onended = () => {
+        btn.classList.remove('playing');
+        currentAudio = null;
+      };
+    }
+
+    // ── Play All (sequential narration) ──
+    const narrationOrder = ['hero', 'prereqs', 'install', 'connect', 'voice', 'byok', 'compare', 'agent'];
+    let playAllIndex = -1;
+    let isPlayingAll = false;
+
+    function playAll() {
+      if (isPlayingAll) {
+        stopAll();
+        return;
+      }
+      isPlayingAll = true;
+      playAllIndex = 0;
+      document.getElementById('play-all-btn').textContent = '⏹ Stop';
+      playNext();
+    }
+
+    function stopAll() {
+      isPlayingAll = false;
+      playAllIndex = -1;
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio = null;
+      }
+      document.getElementById('play-all-btn').textContent = '▶ Play Narration';
+      document.getElementById('play-progress').textContent = '';
+    }
+
+    function playNext() {
+      if (!isPlayingAll || playAllIndex >= narrationOrder.length) {
+        stopAll();
+        return;
+      }
+
+      const id = narrationOrder[playAllIndex];
+      const audio = document.getElementById('audio-' + id);
+      const progress = document.getElementById('play-progress');
+      progress.textContent = `${playAllIndex + 1} / ${narrationOrder.length}`;
+
+      // Scroll to the section
+      const narrationBar = document.querySelector(`[data-audio="audio/narration-${id}.mp3"]`);
+      if (narrationBar) {
+        narrationBar.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      if (audio) {
+        audio.play().catch(() => {});
+        currentAudio = audio;
+        audio.onended = () => {
+          playAllIndex++;
+          setTimeout(playNext, 600);
+        };
+      } else {
+        // No audio file yet — skip after a beat
+        playAllIndex++;
+        setTimeout(playNext, 1500);
+      }
+    }
+
+    // ── Copy Install Block ──
+    function copyInstall() {
+      const code = document.getElementById('install-code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('copy-btn');
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 2000);
+      });
+    }
+  </script>
+
+</body>
+</html>

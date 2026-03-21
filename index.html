@@ -3,28 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BrainJack — Thought to Action</title>
-    <meta name="description" content="Plug in. Speak. AI types. The universal voice-to-keystroke bridge for any computer, any OS, any legacy system.">
+    <title>BrainJack — Voice to Action</title>
+    <meta name="description" content="Speak into your phone. AI understands what you mean and types it into any computer. Dictation mode for clean text. Agent mode for intelligent actions. No cloud required.">
+    <meta property="og:title" content="BrainJack — Voice to Action">
+    <meta property="og:description" content="Speak into your phone. AI types into any computer. Two modes: dictation and AI agent. Privacy-first, no cloud required.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://brainjack.ai">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #05050a;
-            --surface: #0d0d14;
-            --surface-2: #14141e;
-            --text: #f0f0f5;
-            --text-muted: #8888a0;
-            --primary: #7c3aed;
-            --primary-light: #a78bfa;
-            --accent: #3b82f6;
-            --accent-glow: rgba(124, 58, 237, 0.3);
-            --pink: #ec4899;
-            --pink-glow: rgba(236, 72, 153, 0.2);
-            --green: #10b981;
-            --border: #1e1e2e;
-            --font: 'Inter', system-ui, sans-serif;
-            --mono: 'JetBrains Mono', monospace;
+            --bg: #0f0d0a;
+            --surface: #1a1714;
+            --surface-2: #242019;
+            --text: #ede8e0;
+            --text-mid: #b0a898;
+            --text-muted: #8a8178;
+            --accent: #e8a848;
+            --accent-hover: #f0b860;
+            --accent-dim: #b07830;
+            --accent-bg: rgba(232, 168, 72, 0.08);
+            --green: #5cb870;
+            --red: #d45050;
+            --border: #2a2520;
+            --border-hover: #3d3530;
+            --font: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            --mono: 'JetBrains Mono', ui-monospace, monospace;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,520 +38,566 @@
             background: var(--bg);
             color: var(--text);
             font-family: var(--font);
-            line-height: 1.6;
+            font-size: 1rem;
+            line-height: 1.65;
             -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
             overflow-x: hidden;
         }
 
+        a { color: var(--accent); text-decoration: none; transition: color 0.15s; }
+        a:hover { color: var(--accent-hover); }
+
+        ::selection { background: rgba(232, 168, 72, 0.25); color: var(--text); }
+
         .skip-link {
-            position: absolute; top: -40px; left: 0;
-            background: var(--primary); color: white; padding: 8px; z-index: 100;
+            position: absolute; top: -60px; left: 8px;
+            background: var(--accent); color: var(--bg); padding: 12px 20px;
+            border-radius: 0 0 8px 8px; font-weight: 600; z-index: 200;
+            transition: top 0.2s;
         }
-        .skip-link:focus { top: 0; }
+        .skip-link:focus { top: 0; color: var(--bg); }
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        /* --- Layout --- */
+        .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+        .wrap-narrow { max-width: 720px; margin: 0 auto; padding: 0 24px; }
 
-        /* Header */
+        /* --- Header --- */
         header {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 50;
-            background: rgba(5, 5, 10, 0.85);
-            backdrop-filter: blur(20px);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: rgba(15, 13, 10, 0.92);
+            backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border);
         }
         .header-inner {
-            max-width: 1200px; margin: 0 auto; padding: 16px 24px;
+            max-width: 1080px; margin: 0 auto; padding: 14px 24px;
             display: flex; justify-content: space-between; align-items: center;
         }
-        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text); }
-        .logo img { width: 40px; height: 40px; border-radius: 8px; }
-        .logo-text { font-weight: 800; font-size: 1.3rem; letter-spacing: -0.02em; }
-        .logo-tagline { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.15em; }
+        .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
+        .logo img { width: 36px; height: 36px; border-radius: 8px; }
+        .logo-text { font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em; }
 
-        nav ul { display: flex; list-style: none; gap: 28px; }
-        nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color 0.2s; }
+        nav { display: flex; align-items: center; gap: 24px; }
+        nav a { color: var(--text-muted); font-size: 0.85rem; font-weight: 500; padding: 8px 4px; }
         nav a:hover { color: var(--text); }
-
-        .header-cta {
-            padding: 8px 20px; border-radius: 6px; font-size: 0.85rem; font-weight: 600;
-            background: var(--primary); color: white; text-decoration: none;
-            transition: all 0.2s;
+        .nav-cta {
+            padding: 8px 18px; border-radius: 6px; font-size: 0.85rem; font-weight: 600;
+            background: var(--accent); color: var(--bg);
         }
-        .header-cta:hover { background: #6d28d9; transform: translateY(-1px); }
+        .nav-cta:hover { background: var(--accent-hover); color: var(--bg); }
 
-        /* Hero */
+        /* Mobile nav toggle */
+        .nav-toggle { display: none; background: none; border: none; color: var(--text); cursor: pointer; padding: 8px; }
+        .nav-toggle svg { width: 24px; height: 24px; }
+
+        @media (max-width: 768px) {
+            nav { display: none; position: absolute; top: 100%; left: 0; right: 0;
+                   flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; gap: 8px; }
+            nav.open { display: flex; }
+            nav a { padding: 12px 0; font-size: 1rem; }
+            .nav-cta { text-align: center; margin-top: 8px; }
+            .nav-toggle { display: block; }
+        }
+
+        /* --- Hero --- */
         .hero {
-            min-height: 100vh; display: flex; align-items: center; justify-content: center;
-            text-align: center; padding: 140px 24px 80px; position: relative;
+            padding: 160px 24px 100px;
+            max-width: 1080px; margin: 0 auto;
         }
-        .hero::before {
-            content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-            width: 800px; height: 600px;
-            background: radial-gradient(ellipse, var(--accent-glow) 0%, var(--pink-glow) 40%, transparent 70%);
-            filter: blur(80px); z-index: 0;
+        .hero-upper {
+            display: grid; grid-template-columns: 1fr 280px; gap: 60px; align-items: center;
         }
-        .hero-content { position: relative; z-index: 1; max-width: 900px; }
+        .hero h1 {
+            font-size: clamp(2.4rem, 5vw, 3.8rem); font-weight: 800;
+            letter-spacing: -0.035em; line-height: 1.08; margin-bottom: 20px;
+            color: var(--text);
+        }
+        .hero h1 em {
+            font-style: normal; color: var(--accent);
+        }
+        .hero-sub {
+            font-size: 1.15rem; color: var(--text-mid); line-height: 1.7;
+            max-width: 520px; margin-bottom: 36px;
+        }
+        .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
 
         .hero-brain {
-            width: 280px; height: 280px; border-radius: 50%;
-            object-fit: cover; margin: 0 auto 40px;
-            box-shadow: 0 0 80px var(--accent-glow), 0 0 160px var(--pink-glow);
-            animation: float 6s ease-in-out infinite;
+            width: 240px; height: 240px; border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border);
         }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-
-        .hero h1 {
-            font-size: clamp(2.8rem, 6vw, 5rem); font-weight: 900;
-            letter-spacing: -0.03em; line-height: 1.05; margin-bottom: 24px;
-        }
-        .gradient-text {
-            background: linear-gradient(135deg, var(--accent), var(--primary), var(--pink));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .hero p {
-            font-size: 1.25rem; color: var(--text-muted); max-width: 600px;
-            margin: 0 auto 40px; line-height: 1.7;
-        }
-        .hero-ctas { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
 
         .btn {
             display: inline-flex; align-items: center; justify-content: center;
-            padding: 14px 28px; border-radius: 8px; font-weight: 600;
-            text-decoration: none; transition: all 0.25s; border: none;
-            font-size: 1rem; cursor: pointer;
+            padding: 13px 26px; border-radius: 8px; font-weight: 600;
+            text-decoration: none; transition: all 0.15s; border: none;
+            font-size: 0.95rem; cursor: pointer; font-family: var(--font);
         }
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white; box-shadow: 0 4px 20px var(--accent-glow);
-        }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--accent-glow); }
-        .btn-outline {
-            background: transparent; border: 1px solid var(--border); color: var(--text);
-        }
-        .btn-outline:hover { border-color: var(--primary-light); background: var(--surface); }
+        .btn-accent { background: var(--accent); color: var(--bg); }
+        .btn-accent:hover { background: var(--accent-hover); color: var(--bg); transform: translateY(-1px); }
+        .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        .btn-ghost:hover { border-color: var(--border-hover); background: var(--surface); }
 
-        .hero-mono {
-            margin-top: 48px; font-family: var(--mono); font-size: 0.8rem;
-            color: var(--text-muted); letter-spacing: 0.1em;
-        }
-        .hero-mono span { color: var(--primary-light); }
-
-        /* Section base */
-        section { padding: 120px 0; }
-        .section-label {
-            font-family: var(--mono); font-size: 0.75rem; color: var(--primary-light);
-            text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 12px;
-            display: block; text-align: center;
-        }
-        h2 {
-            font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800;
-            letter-spacing: -0.02em; text-align: center; margin-bottom: 20px; line-height: 1.1;
-        }
-        .section-sub {
-            text-align: center; color: var(--text-muted); max-width: 600px;
-            margin: 0 auto 60px; font-size: 1.1rem;
-        }
-
-        /* How it works */
-        .flow {
-            display: flex; align-items: center; justify-content: center; gap: 0;
-            flex-wrap: wrap; margin-top: 60px;
-        }
-        .flow-step {
-            text-align: center; padding: 40px 30px; flex: 1; min-width: 220px; max-width: 300px;
-            position: relative;
-        }
-        .flow-icon {
-            width: 80px; height: 80px; border-radius: 50%;
-            background: var(--surface-2); border: 2px solid var(--border);
-            display: grid; place-items: center; margin: 0 auto 20px;
-            font-size: 2rem;
-        }
-        .flow-step h3 { font-size: 1.3rem; margin-bottom: 8px; }
-        .flow-step p { font-size: 0.9rem; color: var(--text-muted); }
-        .flow-arrow {
-            font-size: 1.5rem; color: var(--primary-light); padding: 0 8px;
-            align-self: center;
-        }
-
-        /* Features grid */
-        .features {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px; margin-top: 60px;
-        }
-        .feature-card {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: 12px; padding: 32px; transition: all 0.3s;
-            position: relative; overflow: hidden;
-        }
-        .feature-card::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            opacity: 0; transition: opacity 0.3s;
-        }
-        .feature-card:hover::before { opacity: 1; }
-        .feature-card:hover { border-color: var(--primary); transform: translateY(-4px); }
-        .feature-icon { font-size: 1.8rem; margin-bottom: 16px; }
-        .feature-card h4 { font-size: 1.1rem; margin-bottom: 8px; }
-        .feature-card p { font-size: 0.9rem; color: var(--text-muted); }
-
-        /* Platform downloads */
-        .downloads {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px; max-width: 900px; margin: 0 auto;
-        }
-        .dl-card {
-            background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-            padding: 28px; text-align: center; text-decoration: none; color: var(--text);
-            transition: all 0.3s;
-        }
-        .dl-card:hover { border-color: var(--primary); transform: translateY(-4px); }
-        .dl-icon { font-size: 2.5rem; margin-bottom: 12px; }
-        .dl-card strong { display: block; font-size: 1.1rem; margin-bottom: 4px; }
-        .dl-card span { font-size: 0.75rem; color: var(--text-muted); }
-
-        /* Use cases */
-        .cases {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-        }
-        .case-card {
-            background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-            padding: 36px; transition: all 0.3s;
-        }
-        .case-card:hover { border-color: var(--primary); }
-        .case-tag {
-            display: inline-block; font-size: 0.7rem; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 0.1em;
-            padding: 4px 12px; border-radius: 100px; margin-bottom: 16px;
-        }
-        .case-tag.medical { background: rgba(16, 185, 129, 0.15); color: var(--green); }
-        .case-tag.business { background: rgba(59, 130, 246, 0.15); color: var(--accent); }
-        .case-tag.diy { background: rgba(236, 72, 153, 0.15); color: var(--pink); }
-        .case-tag.devops { background: rgba(124, 58, 237, 0.15); color: var(--primary-light); }
-        .case-tag.remote { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
-        .case-card h3 { font-size: 1.3rem; margin-bottom: 12px; }
-        .case-card p { font-size: 0.9rem; color: var(--text-muted); }
-
-        /* Pricing */
-        .pricing {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 24px; max-width: 1000px; margin: 0 auto;
-        }
-        .price-card {
-            background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-            padding: 36px; display: flex; flex-direction: column; transition: all 0.3s;
-        }
-        .price-card.featured {
-            border-color: var(--primary); position: relative;
-            background: linear-gradient(180deg, rgba(124,58,237,0.08) 0%, var(--surface) 100%);
-        }
-        .price-card.featured::before {
-            content: 'Most Popular'; position: absolute; top: -12px; left: 50%;
-            transform: translateX(-50%); background: var(--primary); color: white;
-            padding: 4px 16px; border-radius: 100px; font-size: 0.7rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.05em;
-        }
-        .price-card h3 { font-size: 1.2rem; margin-bottom: 4px; }
-        .price-card .price-desc { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 20px; }
-        .price-amount { font-size: 2.8rem; font-weight: 900; margin-bottom: 24px; }
-        .price-amount span { font-size: 0.9rem; color: var(--text-muted); font-weight: 400; }
-        .price-card ul { list-style: none; margin-bottom: 28px; flex-grow: 1; }
-        .price-card li {
-            font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .price-card li::before { content: '\2713'; color: var(--green); font-weight: bold; font-size: 0.9rem; }
-
-        /* App showcase */
-        .app-showcase {
-            display: flex; align-items: center; justify-content: center; gap: 40px;
-            flex-wrap: wrap; margin-top: 60px;
-        }
-        .app-icon-preview {
-            width: 120px; height: 120px; border-radius: 24px; object-fit: cover;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.4);
-        }
-        .app-badges { display: flex; flex-direction: column; gap: 12px; }
-        .app-badge {
-            display: inline-flex; align-items: center; gap: 12px;
-            background: var(--surface); border: 1px solid var(--border);
-            padding: 12px 20px; border-radius: 10px; color: var(--text);
-            text-decoration: none; transition: all 0.2s;
-        }
-        .app-badge:hover { border-color: var(--primary); }
-        .app-badge-icon { font-size: 1.5rem; }
-        .app-badge small { display: block; font-size: 0.65rem; color: var(--text-muted); }
-        .app-badge strong { font-size: 0.95rem; }
-
-        /* Code block */
-        .install-block {
-            background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-            padding: 24px 32px; max-width: 600px; margin: 40px auto 0;
-            font-family: var(--mono); font-size: 0.85rem; position: relative;
+        .hero-install {
+            margin-top: 48px; padding: 20px 24px;
+            background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+            font-family: var(--mono); font-size: 0.8rem; max-width: 580px;
             overflow-x: auto;
         }
-        .install-block .comment { color: var(--text-muted); }
-        .install-block .cmd { color: var(--green); }
-        .install-label {
-            position: absolute; top: -10px; left: 16px;
-            background: var(--surface-2); color: var(--text-muted);
-            padding: 2px 10px; border-radius: 4px; font-size: 0.65rem;
-            text-transform: uppercase; letter-spacing: 0.1em;
-        }
+        .hero-install .dim { color: var(--text-muted); }
+        .hero-install .cmd { color: var(--green); }
 
-        /* CTA section */
-        .cta-section {
-            text-align: center; padding: 120px 24px;
-            background: linear-gradient(180deg, transparent, rgba(124,58,237,0.05), transparent);
-        }
-        .cta-brain {
-            width: 160px; height: 160px; border-radius: 50%; object-fit: cover;
-            margin: 0 auto 32px;
-            box-shadow: 0 0 60px var(--accent-glow);
-            animation: float 6s ease-in-out infinite;
-        }
-
-        /* Footer */
-        footer {
-            padding: 60px 24px 32px; border-top: 1px solid var(--border); text-align: center;
-        }
-        .footer-links { display: flex; justify-content: center; gap: 24px; list-style: none; margin: 20px 0; flex-wrap: wrap; }
-        .footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.8rem; }
-        .footer-links a:hover { color: var(--text); }
-        .copyright { color: var(--text-muted); font-size: 0.7rem; margin-top: 20px; }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            nav, .header-cta { display: none; }
-            .hero h1 { font-size: 2.4rem; }
-            .hero-brain { width: 200px; height: 200px; }
-            .flow { flex-direction: column; }
-            .flow-arrow { transform: rotate(90deg); }
-            .pricing { gap: 32px; }
-            .price-card.featured { transform: none; }
+            .hero { padding: 120px 24px 60px; }
+            .hero-upper { grid-template-columns: 1fr; gap: 40px; }
+            .hero-brain { width: 180px; height: 180px; margin: 0 auto; order: -1; }
+            .hero h1 { text-align: center; }
+            .hero-sub { text-align: center; margin-left: auto; margin-right: auto; }
+            .hero-ctas { justify-content: center; }
+            .hero-install { font-size: 0.72rem; }
         }
 
-        /* Animations */
+        /* --- Sections --- */
+        section { padding: 100px 0; }
+        section + section { border-top: 1px solid var(--border); }
+
+        .section-label {
+            font-family: var(--mono); font-size: 0.72rem; color: var(--accent);
+            text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 12px;
+            display: block;
+        }
+        .section-heading {
+            font-size: clamp(1.8rem, 3.5vw, 2.6rem); font-weight: 800;
+            letter-spacing: -0.025em; line-height: 1.1; margin-bottom: 16px;
+        }
+        .section-desc {
+            color: var(--text-mid); font-size: 1.05rem; max-width: 540px;
+            margin-bottom: 48px; line-height: 1.7;
+        }
+
+        /* --- Demo Video --- */
+        .demo-section { text-align: center; }
+        .demo-section .section-label,
+        .demo-section .section-heading { text-align: center; }
+        .demo-section .section-desc { margin-left: auto; margin-right: auto; text-align: center; }
+        .demo-video {
+            width: 100%; max-width: 840px; margin: 0 auto;
+            border-radius: 10px; border: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        /* --- Two Modes --- */
+        .modes-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+        }
+        .mode-block {
+            padding: 36px; border: 1px solid var(--border); border-radius: 12px;
+            background: var(--surface); position: relative;
+        }
+        .mode-block:hover { border-color: var(--border-hover); }
+        .mode-tag {
+            display: inline-block; font-family: var(--mono); font-size: 0.68rem;
+            font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+            padding: 4px 10px; border-radius: 4px; margin-bottom: 20px;
+        }
+        .mode-tag.dictation { background: rgba(92, 184, 112, 0.12); color: var(--green); }
+        .mode-tag.agent { background: var(--accent-bg); color: var(--accent); }
+        .mode-block h3 { font-size: 1.35rem; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.01em; }
+        .mode-block p { color: var(--text-mid); font-size: 0.92rem; margin-bottom: 16px; }
+        .mode-block ul { list-style: none; }
+        .mode-block li {
+            font-size: 0.88rem; color: var(--text-mid); padding: 5px 0;
+            padding-left: 20px; position: relative;
+        }
+        .mode-block li::before {
+            content: ''; position: absolute; left: 0; top: 13px;
+            width: 6px; height: 6px; border-radius: 50%;
+        }
+        .mode-block.dictation li::before { background: var(--green); }
+        .mode-block.agent li::before { background: var(--accent); }
+
+        @media (max-width: 768px) {
+            .modes-grid { grid-template-columns: 1fr; }
+        }
+
+        /* --- How It Connects --- */
+        .connect-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+        }
+        .connect-block {
+            padding: 32px; border: 1px solid var(--border); border-radius: 12px;
+        }
+        .connect-block h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; }
+        .connect-block p { color: var(--text-mid); font-size: 0.9rem; margin-bottom: 14px; }
+        .connect-detail {
+            font-family: var(--mono); font-size: 0.78rem; color: var(--text-muted);
+            padding: 12px 16px; background: var(--surface); border-radius: 6px;
+        }
+        .connect-block .plus {
+            display: block; text-align: center; font-size: 0.8rem; color: var(--text-muted);
+            margin: 16px 0; font-weight: 600;
+        }
+        .connect-fallback {
+            padding: 16px; border: 1px dashed var(--border); border-radius: 8px;
+        }
+        .connect-fallback h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
+        .connect-fallback p { color: var(--text-muted); font-size: 0.82rem; margin: 0; }
+
+        @media (max-width: 768px) {
+            .connect-grid { grid-template-columns: 1fr; }
+        }
+
+        /* --- Capabilities --- */
+        .caps-list { display: flex; flex-direction: column; gap: 0; }
+        .cap-row {
+            display: grid; grid-template-columns: 180px 1fr; gap: 24px;
+            padding: 20px 0; border-bottom: 1px solid var(--border);
+            align-items: baseline;
+        }
+        .cap-row:last-child { border-bottom: none; }
+        .cap-name {
+            font-weight: 700; font-size: 0.92rem; color: var(--text);
+        }
+        .cap-desc { color: var(--text-mid); font-size: 0.9rem; }
+        .cap-desc strong { color: var(--text); font-weight: 600; }
+
+        @media (max-width: 600px) {
+            .cap-row { grid-template-columns: 1fr; gap: 4px; }
+        }
+
+        /* --- Platform / Vision --- */
+        .vision-content {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px;
+        }
+        .vision-step {
+            padding: 28px; border-left: 2px solid var(--border);
+        }
+        .vision-step.now { border-left-color: var(--accent); }
+        .vision-step .step-label {
+            font-family: var(--mono); font-size: 0.68rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px;
+        }
+        .vision-step.now .step-label { color: var(--accent); }
+        .vision-step h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+        .vision-step p { color: var(--text-mid); font-size: 0.88rem; }
+
+        @media (max-width: 768px) {
+            .vision-content { grid-template-columns: 1fr; }
+            .vision-step { border-left: none; border-top: 2px solid var(--border); padding: 20px 0; }
+            .vision-step.now { border-top-color: var(--accent); }
+        }
+
+        /* --- Use Cases --- */
+        .cases-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+        }
+        .case-item {
+            padding: 28px; border: 1px solid var(--border); border-radius: 10px;
+        }
+        .case-item:hover { border-color: var(--border-hover); }
+        .case-item h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; }
+        .case-item p { color: var(--text-mid); font-size: 0.88rem; margin: 0; }
+
+        @media (max-width: 600px) {
+            .cases-grid { grid-template-columns: 1fr; }
+        }
+
+        /* --- Security --- */
+        .security-row {
+            display: flex; gap: 40px; flex-wrap: wrap;
+        }
+        .security-item { flex: 1; min-width: 200px; }
+        .security-item h4 { font-size: 0.92rem; font-weight: 700; margin-bottom: 4px; }
+        .security-item p { color: var(--text-mid); font-size: 0.85rem; }
+
+        /* --- Product Grid --- */
+        .product-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+        }
+        .product-card {
+            padding: 32px; border: 1px solid var(--border); border-radius: 12px;
+            display: flex; flex-direction: column;
+        }
+        .product-card.featured { border-color: var(--accent); background: var(--accent-bg); }
+        .product-tier {
+            font-family: var(--mono); font-size: 0.68rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .product-card.featured .product-tier { color: var(--accent); }
+        .product-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; }
+        .product-price { font-size: 1.1rem; font-weight: 700; color: var(--text-mid); margin-bottom: 20px; }
+        .product-card ul { list-style: none; flex-grow: 1; margin-bottom: 16px; }
+        .product-card li {
+            font-size: 0.85rem; color: var(--text-mid); padding: 4px 0 4px 18px; position: relative;
+        }
+        .product-card li::before {
+            content: ''; position: absolute; left: 0; top: 12px;
+            width: 5px; height: 5px; border-radius: 50%; background: var(--text-muted);
+        }
+        .product-card.featured li::before { background: var(--accent-dim); }
+        .product-note { font-size: 0.8rem; color: var(--text-muted); font-style: italic; }
+        .product-platforms { display: flex; flex-direction: column; gap: 4px; margin-top: auto; }
+        .product-platforms span {
+            font-size: 0.78rem; color: var(--text-muted); font-family: var(--mono);
+        }
+
+        @media (max-width: 768px) {
+            .product-grid { grid-template-columns: 1fr; }
+        }
+
+        /* --- CTA --- */
+        .cta-section { text-align: center; padding: 100px 24px; }
+        .cta-section .section-heading { text-align: center; }
+        .cta-section .section-desc { margin-left: auto; margin-right: auto; text-align: center; }
+
+        /* --- App Badges --- */
+        .app-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+        .app-badge {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: var(--surface); border: 1px solid var(--border);
+            padding: 10px 18px; border-radius: 8px; color: var(--text);
+            text-decoration: none; transition: border-color 0.15s;
+        }
+        .app-badge:hover { border-color: var(--border-hover); color: var(--text); }
+        .app-badge small { font-size: 0.65rem; color: var(--text-muted); display: block; }
+        .app-badge strong { font-size: 0.9rem; }
+
+        /* --- Footer --- */
+        footer {
+            padding: 48px 24px 28px; border-top: 1px solid var(--border);
+        }
+        .footer-inner {
+            max-width: 1080px; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: start;
+            flex-wrap: wrap; gap: 24px;
+        }
+        .footer-brand { display: flex; align-items: center; gap: 8px; }
+        .footer-brand img { width: 28px; height: 28px; border-radius: 6px; }
+        .footer-brand span { font-weight: 700; font-size: 0.95rem; }
+        .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+        .footer-links a { color: var(--text-muted); font-size: 0.8rem; padding: 4px 0; }
+        .footer-links a:hover { color: var(--text); }
+        .copyright { color: var(--text-muted); font-size: 0.7rem; text-align: center; margin-top: 32px; }
+
+        @media (max-width: 600px) {
+            .footer-inner { flex-direction: column; align-items: center; text-align: center; }
+            .footer-links { justify-content: center; }
+        }
+
+        /* --- Scroll Reveal --- */
         .reveal {
-            opacity: 0; transform: translateY(30px);
-            transition: opacity 0.7s ease, transform 0.7s ease;
+            opacity: 0; transform: translateY(20px);
+            transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1), transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
         }
         .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal { opacity: 1; transform: none; transition: none; }
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* --- Focus --- */
+        :focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
     </style>
 </head>
 <body>
-    <a href="#content" class="skip-link">Skip to main content</a>
+    <a href="#content" class="skip-link">Skip to content</a>
 
     <header>
         <div class="header-inner">
             <a href="/" class="logo">
-                <img src="assets/logo-dark.jpg" alt="BrainJack logo">
-                <div>
-                    <div class="logo-text">BrainJack</div>
-                    <div class="logo-tagline">thought to action</div>
-                </div>
+                <img src="assets/logo-dark.jpg" alt="BrainJack" width="36" height="36">
+                <span class="logo-text">BrainJack</span>
             </a>
-            <nav aria-label="Main Navigation">
-                <ul>
-                    <li><a href="#how">How it Works</a></li>
-                    <li><a href="#platforms">Downloads</a></li>
-                    <li><a href="#use-cases">Use Cases</a></li>
-                    <li><a href="https://github.com/scrappylabsai/brainjack-agent">GitHub</a></li>
-                    <li><a href="https://testflight.apple.com/join/GTUVUYyr">iOS Beta</a></li>
-                </ul>
+            <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded')==='false');document.querySelector('nav').classList.toggle('open')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <nav aria-label="Main">
+                <a href="#modes">How It Works</a>
+                <a href="#connect">Setup</a>
+                <a href="#use-cases">Use Cases</a>
+                <a href="#get">Get It</a>
+                <a href="https://github.com/scrappylabsai/brainjack-service" rel="noopener">GitHub</a>
+                <a href="#get" class="nav-cta">Get BrainJack</a>
             </nav>
-            <a href="https://testflight.apple.com/join/GTUVUYyr" class="header-cta">Join iOS Beta</a>
         </div>
     </header>
 
     <main id="content">
+
         <!-- Hero -->
         <section class="hero">
-            <div class="hero-content">
-                <img src="assets/hero-brain-dark.jpg" alt="3D brain with USB connector" class="hero-brain">
-                <h1>Your voice.<br><span class="gradient-text">Any keyboard.</span></h1>
-                <p>Speak into your phone. AI generates text, code, emails &mdash; copies to clipboard or types into any computer. No drivers. No cloud. Works standalone.</p>
-                <div class="hero-ctas">
-                    <a href="#platforms" class="btn btn-primary">Get Started Free</a>
-                    <a href="#demo" class="btn btn-outline">Watch Demo</a>
+            <div class="hero-upper">
+                <div>
+                    <h1>Don't just dictate.<br><em>Let AI act.</em></h1>
+                    <p class="hero-sub">Most voice apps clean up your speech. BrainJack does that — and goes further. Agent mode understands what you mean, remembers your session, and executes multi-step actions on any computer. Bring your own AI. Keep it private. No cloud required.</p>
+                    <div class="hero-ctas">
+                        <a href="#get" class="btn btn-accent">Get BrainJack</a>
+                        <a href="#modes" class="btn btn-ghost">See How It Works</a>
+                    </div>
+                    <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 14px;">In beta · iOS on TestFlight · Android in progress · USB dongle available now</p>
                 </div>
-                <div class="hero-mono">
-                    <span>$</span> brainjack --listen <span>|</span> thought <span>&rarr;</span> action
+                <img src="assets/hero-brain-dark.jpg" alt="BrainJack — brain with USB connector" class="hero-brain" width="240" height="240" loading="eager">
+            </div>
+            <div class="hero-install">
+                <span class="dim"># Install on your computer (macOS / Linux):</span><br>
+                <span class="cmd">curl -fsSL https://brainjack.ai/get | bash</span><br><br>
+                <span class="dim"># Windows (PowerShell):</span><br>
+                <span class="cmd">irm https://raw.githubusercontent.com/scrappylabsai/brainjack-service/main/install.ps1 | iex</span>
+            </div>
+        </section>
+
+        <!-- Demo — videos being reshot, section placeholder -->
+        <section id="demo"></section>
+
+        <!-- Two Modes -->
+        <section id="modes" class="reveal">
+            <div class="wrap">
+                <span class="section-label">Beyond dictation</span>
+                <h2 class="section-heading">Other apps clean your words. This one understands them.</h2>
+                <p class="section-desc">Dictation apps give you text. BrainJack gives you two modes — clean transcription when you want it, and an AI agent that interprets intent when you need it. Switch with a single tap.</p>
+
+                <div class="modes-grid">
+                    <div class="mode-block dictation">
+                        <span class="mode-tag dictation">Dictation</span>
+                        <h3>Clean transcription</h3>
+                        <p>Say it, it types it. AI removes stutters, filler words, and false starts. You get clean text ready to send.</p>
+                        <ul>
+                            <li>On-device speech recognition — nothing leaves your network</li>
+                            <li>Manual mode (tap to speak) or Live mode (continuous listening)</li>
+                            <li>Adjustable sensitivity — tune how long silence means "done"</li>
+                            <li>Custom AI instructions — "formal tone", "coding style", "minimal"</li>
+                            <li>Personal dictionary — teach it your jargon and proper nouns</li>
+                        </ul>
+                    </div>
+
+                    <div class="mode-block agent">
+                        <span class="mode-tag agent">Agent — no other voice app does this</span>
+                        <h3>Agentic dictation</h3>
+                        <p>Don't describe keystrokes. Describe what you want done. The AI interprets your intent, builds a plan, and executes — typing, pressing keys, triggering combos, waiting between steps.</p>
+                        <ul>
+                            <li>Multi-step actions — type, key press, combos, delays, all in sequence</li>
+                            <li>Session memory — remembers 10 turns of context per session</li>
+                            <li>Verbal context — say "I'm filling out a vet form" and it adapts everything after</li>
+                            <li>OS-aware — knows Mac vs Windows vs Linux, remaps shortcuts automatically</li>
+                            <li>Growing toward RAG — persistent memory across sessions, your personal context</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- Video Sections -->
-        <section id="demo" class="reveal">
-            <div class="container" style="text-align: center;">
-                <span class="section-label">See it in action</span>
-                <h2>Real demo. No tricks.</h2>
-                <p class="section-sub">Watch BrainJack in action — shot on a phone, unedited.</p>
-                <video controls playsinline preload="metadata"
-                    style="width: 100%; max-width: 900px; border-radius: 12px; border: 1px solid var(--border); margin-top: 32px;"
-                    poster="assets/hero-brain-dark.jpg">
-                    <source src="https://stuff.loser.com/shared/brainjack-demo.mp4" type="video/mp4">
-                </video>
+        <!-- How It Connects -->
+        <section id="connect" class="reveal">
+            <div class="wrap">
+                <span class="section-label">Setup</span>
+                <h2 class="section-heading">Two ways to connect. Or don't.</h2>
+                <p class="section-desc">Install the service for WiFi control. Plug in a dongle for zero-setup USB. Or just use clipboard mode — no computer needed.</p>
+
+                <div class="connect-grid">
+                    <div class="connect-block">
+                        <h3>Install the Service</h3>
+                        <p>One command. Runs as a system service. Auto-starts on boot. Connects over your local network via WebSocket.</p>
+                        <div class="connect-detail">
+                            Works on: Windows (SendInput) · macOS (osascript) · Linux X11 (xdotool) · Wayland (ydotool)
+                        </div>
+                        <span class="plus">+</span>
+                        <div class="connect-detail">
+                            Security: HMAC token auth · TLS optional · rate limiting · audit log (never logs keystrokes)
+                        </div>
+                    </div>
+
+                    <div class="connect-block">
+                        <h3>Plug In the Dongle</h3>
+                        <p>No other voice app can do this. An ESP32-S3 USB device that appears as a standard keyboard. No drivers, no software, no admin rights on the target machine. Ever.</p>
+                        <div class="connect-detail">
+                            Works with: BIOS · login screens · air-gapped machines · anything with a USB port since 1995
+                        </div>
+                        <span class="plus">or</span>
+                        <div class="connect-fallback">
+                            <h4>Clipboard mode</h4>
+                            <p>No connection at all. Speak, AI generates, copied to your clipboard. Paste wherever you want.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
+        <!-- Capabilities -->
         <section class="reveal">
-            <div class="container" style="text-align: center;">
-                <span class="section-label">The Vision</span>
-                <h2>What we're building.</h2>
-                <p class="section-sub">A 60-second look at the problem BrainJack solves — and why it matters.</p>
-                <video controls playsinline preload="metadata"
-                    style="width: 100%; max-width: 900px; border-radius: 12px; border: 1px solid var(--border); margin-top: 32px;"
-                    poster="assets/hero-brain-dark.jpg">
-                    <source src="https://stuff.loser.com/shared/brainjack-promo.mp4" type="video/mp4">
-                </video>
-            </div>
-        </section>
+            <div class="wrap">
+                <span class="section-label">What's built</span>
+                <h2 class="section-heading">In the beta right now.</h2>
+                <p class="section-desc">Everything here is in the current TestFlight build. Working, but we're still testing. That's why we need you.</p>
 
-        <!-- How it Works -->
-        <section id="how" class="reveal">
-            <div class="container">
-                <span class="section-label">How it works</span>
-                <h2>Three steps. Zero friction.</h2>
-                <div class="flow">
-                    <div class="flow-step">
-                        <div class="flow-icon">&#127908;</div>
-                        <h3>Speak</h3>
-                        <p>Talk naturally into the BrainJack app. On-device ASR — nothing leaves your network.</p>
+                <div class="caps-list">
+                    <div class="cap-row">
+                        <div class="cap-name">Live Mode</div>
+                        <div class="cap-desc">Continuous listening with adjustable sensitivity. Speak naturally — the engine keeps listening after each result. No re-tapping. <strong>Sensitivity slider</strong> controls silence timeout from 0.8s to 3.0s.</div>
                     </div>
-                    <div class="flow-arrow">&rarr;</div>
-                    <div class="flow-step">
-                        <div class="flow-icon">&#129504;</div>
-                        <h3>Think</h3>
-                        <p>AI interprets your intent &mdash; generates letters, code, emails, or keyboard actions. Full content creation, not just dictation.</p>
+                    <div class="cap-row">
+                        <div class="cap-name">Command Sheets</div>
+                        <div class="cap-desc">One-tap macros for <strong>Vim, tmux, Emacs, VS Code, and Shell</strong>. Tool-specific palettes with 15–50 buttons each. OS-aware — Cmd on Mac becomes Ctrl on Windows automatically.</div>
                     </div>
-                    <div class="flow-arrow">&rarr;</div>
-                    <div class="flow-step">
-                        <div class="flow-icon">&#9000;</div>
-                        <h3>Type</h3>
-                        <p>Copied to your clipboard instantly. Or, connect to a computer and keystrokes inject into whatever has focus.</p>
+                    <div class="cap-row">
+                        <div class="cap-name">Multi-Device</div>
+                        <div class="cap-desc">Save multiple computers. Switch between your work Mac, home Linux box, and a cloud VM. Each device remembers its OS type, connection method, and auth token.</div>
+                    </div>
+                    <div class="cap-row">
+                        <div class="cap-name">QR Setup</div>
+                        <div class="cap-desc">Scan a QR code from the service running on your computer. IP, port, and auth token — configured in one scan. Manual entry also available.</div>
+                    </div>
+                    <div class="cap-row">
+                        <div class="cap-name">Kill Switch</div>
+                        <div class="cap-desc">Red button. Sends emergency stop. Clears any stuck HID injection immediately. Because sometimes you need to pull the brake.</div>
+                    </div>
+                    <div class="cap-row">
+                        <div class="cap-name">Offline Queueing</div>
+                        <div class="cap-desc">Lose connection mid-dictation? Commands queue locally and replay when your device reconnects. Nothing lost.</div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Features -->
+        <!-- Why BrainJack -->
         <section class="reveal">
-            <div class="container">
-                <span class="section-label">Why BrainJack</span>
-                <h2>Built different.</h2>
-                <p class="section-sub">Not another clipboard app. BrainJack is a universal HID bridge that works where nothing else can.</p>
-                <div class="features">
-                    <div class="feature-card">
-                        <div class="feature-icon">&#128268;</div>
-                        <h4>Universal USB HID</h4>
-                        <p>Appears as a standard keyboard. Works with BIOS, login screens, legacy DOS, anything that takes keyboard input since 1995.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">&#128272;</div>
-                        <h4>HIPAA-Local by Default</h4>
-                        <p>All voice processing stays on your network. Zero cloud dependency. Token auth, TLS, audit logging built in.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">&#128187;</div>
-                        <h4>Every Platform</h4>
-                        <p>Windows (SendInput), macOS (osascript), Linux X11 (xdotool), Linux Wayland (ydotool). One agent, all OSes.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">&#9889;</div>
-                        <h4>Zero Install on Target</h4>
-                        <p>With the ESP32 dongle, the target machine needs nothing. No drivers. No software. No admin rights. Just USB.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">&#127899;</div>
-                        <h4>Command Sheets</h4>
-                        <p>One-tap macros for vim, tmux, emacs, VS Code, shell. Tool-specific palettes, color-coded, OS-aware.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">&#128640;</div>
-                        <h4>Open Ecosystem</h4>
-                        <p>Compatible with ESP32-S3, Flipper Zero, any WebSocket client. Source-available under BSL. Build on it.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">&#129302;</div>
-                        <h4>AI Agent Mode</h4>
-                        <p>Say "I'm filling out a vet form, write a letter about my dog's shots." The AI generates the full letter. Review on your phone, then send.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">&#128203;</div>
-                        <h4>Clipboard-First</h4>
-                        <p>Works without any computer setup. Speak, AI generates, copied to clipboard. Paste into any app. No service needed.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+            <div class="wrap">
+                <span class="section-label">Why this is different</span>
+                <h2 class="section-heading">What you won't find anywhere else.</h2>
+                <p class="section-desc">Voice dictation is a crowded market. Most apps clean your speech into text. Here's what they don't do.</p>
 
-        <!-- Platform Downloads -->
-        <section id="platforms" class="reveal">
-            <div class="container">
-                <span class="section-label">Get Started</span>
-                <h2>Run everywhere.</h2>
-                <p class="section-sub">Install on your computer in 30 seconds. Or plug in the USB dongle — zero setup required.</p>
-
-                <div class="install-block">
-                    <div class="install-label">Quick Install</div>
-                    <span class="comment"># macOS / Linux:</span><br>
-                    <span class="cmd">curl -fsSL https://raw.githubusercontent.com/scrappylabsai/brainjack-agent/main/get-brainjack.sh | bash</span><br><br>
-                    <span class="comment"># Windows (PowerShell):</span><br>
-                    <span class="cmd">irm https://raw.githubusercontent.com/scrappylabsai/brainjack-agent/main/install.ps1 | iex</span>
-                </div>
-
-                <div class="downloads" style="margin-top: 48px;">
-                    <a href="https://github.com/scrappylabsai/brainjack-agent" class="dl-card">
-                        <div class="dl-icon">&#128421;</div>
-                        <strong>Windows</strong>
-                        <span>One-click install</span>
-                    </a>
-                    <a href="setup.html" class="dl-card">
-                        <div class="dl-icon">&#63743;</div>
-                        <strong>macOS</strong>
-                        <span>One-click install</span>
-                    </a>
-                    <a href="setup.html" class="dl-card">
-                        <div class="dl-icon">&#128039;</div>
-                        <strong>Linux</strong>
-                        <span>One-click install</span>
-                    </a>
-                    <a href="https://github.com/scrappylabsai/brainjack-agent" class="dl-card" style="border-color: var(--pink);">
-                        <div class="dl-icon">&#9881;</div>
-                        <strong>USB Dongle</strong>
-                        <span>Plug in, done</span>
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <!-- App -->
-        <section class="reveal">
-            <div class="container" style="text-align: center;">
-                <span class="section-label">Mobile App</span>
-                <h2>Your phone is the remote.</h2>
-                <p class="section-sub">Voice input, virtual trackpad, macro sheets, multi-device management. All from your pocket.</p>
-                <div class="app-showcase">
-                    <img src="assets/image_0_iOS_app__20260309_224557.jpg" alt="BrainJack iOS app icon" class="app-icon-preview">
-                    <div class="app-badges">
-                        <a href="https://testflight.apple.com/join/GTUVUYyr" class="app-badge">
-                            <span class="app-badge-icon">&#63743;</span>
-                            <div>
-                                <small>Join the Beta on</small>
-                                <strong>TestFlight</strong>
-                            </div>
-                        </a>
-                        <a href="#" class="app-badge">
-                            <span class="app-badge-icon">&#9654;</span>
-                            <div>
-                                <small>Coming soon on</small>
-                                <strong>Google Play</strong>
-                            </div>
-                        </a>
+                <div class="caps-list">
+                    <div class="cap-row">
+                        <div class="cap-name">Agentic AI</div>
+                        <div class="cap-desc">Other apps transcribe. BrainJack <strong>interprets intent and acts</strong> — multi-step keyboard actions, session memory, verbal context that accumulates. Say "I'm in a web form" once and every action after adapts. No other voice app has this.</div>
+                    </div>
+                    <div class="cap-row">
+                        <div class="cap-name">Bring your own AI</div>
+                        <div class="cap-desc">Other apps lock you into their cloud. BrainJack lets you <strong>plug in your own ASR backend, your own LLM, your own API keys</strong> — any OpenAI-compatible endpoint. Use our services or don't. Your choice.</div>
+                    </div>
+                    <div class="cap-row">
+                        <div class="cap-name">Private by architecture</div>
+                        <div class="cap-desc">Not "we promise we won't look at your data." <strong>There is no cloud to breach.</strong> On-device ASR. Local network only. Keystroke content is never logged. Other apps are SOC 2 certified — we don't need to be, because your voice never leaves your network.</div>
+                    </div>
+                    <div class="cap-row">
+                        <div class="cap-name">USB HID hardware</div>
+                        <div class="cap-desc">A physical dongle that types into <strong>BIOS, login screens, air-gapped machines</strong> — anything with USB. No software on the target. No other voice product in the market offers this. It's a different category.</div>
+                    </div>
+                    <div class="cap-row">
+                        <div class="cap-name">Real Linux support</div>
+                        <div class="cap-desc">Most voice apps are Mac-first, Windows-maybe, Linux-never. BrainJack supports <strong>X11 (xdotool) and Wayland (ydotool)</strong> as first-class targets. Because developers use Linux.</div>
+                    </div>
+                    <div class="cap-row">
+                        <div class="cap-name">Developer tools</div>
+                        <div class="cap-desc">Pre-built command sheets for <strong>Vim, tmux, Emacs, VS Code, and Shell</strong>. One-tap macros. OS-aware shortcuts. This isn't a productivity app for note-takers — it's a power tool for people who live in the terminal.</div>
                     </div>
                 </div>
             </div>
@@ -554,81 +605,208 @@
 
         <!-- Use Cases -->
         <section id="use-cases" class="reveal">
-            <div class="container">
-                <span class="section-label">Use Cases</span>
-                <h2>Your phone. Every machine.</h2>
-                <p class="section-sub">Control any machine from your phone. SSH, code, manage servers — all by voice.</p>
-                <div class="cases">
-                    <div class="case-card">
-                        <span class="case-tag devops">DevOps / Coding</span>
-                        <h3>Your Phone is a Terminal</h3>
-                        <p>SSH into 10 servers from the couch. One-tap vim macros, tmux splits, shell combos. Voice-dictate code, commit messages, config files. Command sheets built for the terminal-obsessed.</p>
+            <div class="wrap">
+                <span class="section-label">Who it's for</span>
+                <h2 class="section-heading">Real scenarios. Not hypotheticals.</h2>
+
+                <div class="cases-grid">
+                    <div class="case-item">
+                        <h3>Developer on the couch</h3>
+                        <p>SSH into servers by voice. One-tap Vim macros. Dictate commit messages. Command sheets built for people who live in the terminal.</p>
                     </div>
-                    <div class="case-card">
-                        <span class="case-tag remote">Remote Sessions</span>
-                        <h3>Multi-Machine from Your Pocket</h3>
-                        <p>Switch between your work Mac, home Linux box, and a cloud VM — all from one phone. Each device remembers its OS, macros, and auth token. You're always one tap away.</p>
+                    <div class="case-item">
+                        <h3>Multi-machine operator</h3>
+                        <p>Switch between your work Mac, home Linux box, and a cloud VM — all from one phone. Each device remembers its OS and macros.</p>
                     </div>
-                    <div class="case-card">
-                        <span class="case-tag diy">Makers / Flipper</span>
-                        <h3>Open Hardware, Open Firmware</h3>
-                        <p>Flash an ESP32-S3 or your Flipper Zero WiFi board. Full firmware on GitHub. Build your own voice-controlled anything for the cost of a coffee.</p>
+                    <div class="case-item">
+                        <h3>Filling out forms</h3>
+                        <p>"Write a letter confirming my dog's rabies shot on March 15th." Agent mode generates the full letter. Review on your phone, paste into the web form.</p>
                     </div>
-                    <div class="case-card">
-                        <span class="case-tag medical">Everyday</span>
-                        <h3>Forms, Letters, Emails</h3>
-                        <p>At the vet? Say "write a letter confirming my dog's rabies shot on March 15th." BrainJack generates the full letter, you paste it into the web form. Voice-to-content for real life.</p>
+                    <div class="case-item">
+                        <h3>Hardware hackers</h3>
+                        <p>Flash an ESP32-S3 or Flipper Zero. Open firmware on GitHub. Build a voice-controlled anything for the cost of a coffee.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Pricing coming soon -->
+        <!-- Platform Vision -->
+        <section class="reveal">
+            <div class="wrap">
+                <span class="section-label">Where this is going</span>
+                <h2 class="section-heading">The agent gets smarter.</h2>
+                <p class="section-desc">BrainJack isn't a dictation app with AI bolted on. It's a platform. The intelligence grows.</p>
 
-        <!-- Final CTA -->
+                <div class="vision-content">
+                    <div class="vision-step now">
+                        <div class="step-label">Now</div>
+                        <h3>Session memory</h3>
+                        <p>The agent remembers your last 10 turns. Verbal context accumulates — say "I'm in a web form" once, and every action after adapts. OS-aware actions, multi-step sequences.</p>
+                    </div>
+                    <div class="vision-step">
+                        <div class="step-label">Next</div>
+                        <h3>RAG + persistent context</h3>
+                        <p>Memory that survives sessions. The agent knows your preferences, your tools, your workflows. Retrieval-augmented generation over your personal context.</p>
+                    </div>
+                    <div class="vision-step">
+                        <div class="step-label">Then</div>
+                        <h3>Autonomous actions</h3>
+                        <p>Multi-app workflows. Voice-triggered automations. The agent doesn't just type — it navigates, fills, submits, and verifies. Your voice becomes a control surface for everything.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security -->
+        <section class="reveal">
+            <div class="wrap">
+                <span class="section-label">Trust model</span>
+                <h2 class="section-heading">Private by architecture.</h2>
+                <p class="section-desc">Not "privacy-friendly." Private. All processing stays on your network. There is no cloud to breach.</p>
+
+                <div class="security-row">
+                    <div class="security-item">
+                        <h4>On-device ASR</h4>
+                        <p>Speech recognition runs on your phone. Audio never leaves the device. Bring your own ASR backend if you want — it's your choice.</p>
+                    </div>
+                    <div class="security-item">
+                        <h4>Token auth</h4>
+                        <p>HMAC-SHA256 constant-time comparison. Generated during install. Shared via QR code.</p>
+                    </div>
+                    <div class="security-item">
+                        <h4>Audit logging</h4>
+                        <p>Every connection, auth attempt, and command type is logged. Keystroke content is never recorded.</p>
+                    </div>
+                    <div class="security-item">
+                        <h4>TLS + rate limiting</h4>
+                        <p>Optional TLS encryption. Per-IP rate limiting prevents abuse. Reverse proxy mode for production setups.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Get BrainJack -->
+        <section id="get" class="reveal">
+            <div class="wrap">
+                <span class="section-label">Get BrainJack</span>
+                <h2 class="section-heading">Your keys. Your infra. Our app.</h2>
+                <p class="section-desc">The service is source-available and free for personal use. The app is what you buy. The dongle is a separate physical product. During beta, everything is free to test.</p>
+
+                <!-- Freedom philosophy callout -->
+                <div style="padding: 24px 28px; border-left: 2px solid var(--accent); background: var(--accent-bg); border-radius: 0 8px 8px 0; margin-bottom: 40px;">
+                    <p style="color: var(--text); font-size: 0.95rem; margin: 0; line-height: 1.7;"><strong>You're not locked in.</strong> The app lets you bring your own ASR backend, your own LLM, your own API keys. Point it at your own infrastructure and it just works. ScrappyLabs services are there as a convenience — not a requirement. You buy the app because it's the best voice-to-action client, not because we trapped you.</p>
+                </div>
+
+                <div class="product-grid">
+                    <div class="product-card">
+                        <div class="product-tier">Source-available</div>
+                        <h3>BrainJack Service</h3>
+                        <p class="product-price">Free for personal use</p>
+                        <p style="color: var(--text-mid); font-size: 0.88rem; margin-bottom: 16px;">The backend that receives commands and injects keystrokes. Install it on any computer. Source on GitHub under BSL 1.1 — free for non-commercial use, converts to Apache 2.0 in 2030.</p>
+                        <ul>
+                            <li>macOS, Windows, Linux (X11 + Wayland)</li>
+                            <li>One-command install, auto-starts on boot</li>
+                            <li>Token auth, TLS, audit logging</li>
+                            <li>683 lines of Python. No bloat.</li>
+                        </ul>
+                        <div style="margin-top: auto; padding-top: 16px;">
+                            <a href="https://github.com/scrappylabsai/brainjack-service" class="btn btn-accent" rel="noopener" style="width: 100%; text-align: center;">Install from GitHub</a>
+                        </div>
+                    </div>
+
+                    <div class="product-card featured">
+                        <div class="product-tier">The app</div>
+                        <h3>BrainJack App</h3>
+                        <p class="product-price">Free during beta</p>
+                        <p style="color: var(--text-mid); font-size: 0.88rem; margin-bottom: 16px;">The app is what you buy from the App Store. Voice interface, AI engine, command center. Bring your own ASR and LLM backends — or use ours. Your keys, your infra.</p>
+                        <ul>
+                            <li>Dictation + Agent modes</li>
+                            <li>Bring your own ASR backend + API keys</li>
+                            <li>Bring your own LLM (any OpenAI-compatible API)</li>
+                            <li>Command Sheets, multi-device, kill switch</li>
+                            <li>Clipboard mode (works standalone, no service needed)</li>
+                            <li>All features unlocked during beta</li>
+                        </ul>
+                        <div class="product-platforms" style="margin-top: auto; padding-top: 16px;">
+                            <span>iOS — <a href="https://testflight.apple.com/join/z8H86Qfj" rel="noopener">TestFlight beta now</a></span>
+                            <span>Android — beta in progress</span>
+                        </div>
+                    </div>
+
+                    <div class="product-card">
+                        <div class="product-tier">Hardware</div>
+                        <h3>USB Dongle</h3>
+                        <p class="product-price">Available now</p>
+                        <p style="color: var(--text-mid); font-size: 0.88rem; margin-bottom: 16px;">Pre-flashed ESP32-S3 USB HID controller. Plug it into any machine — appears as a standard keyboard. Nothing to install on the target. Works with the app over WiFi.</p>
+                        <ul>
+                            <li>BIOS, login screens, air-gapped machines</li>
+                            <li>No drivers, no software, no admin rights</li>
+                            <li>Open firmware on GitHub</li>
+                            <li>Works with anything USB since 1995</li>
+                        </ul>
+                        <p class="product-note" style="margin-top: auto; padding-top: 16px;"><a href="mailto:brian@scrappylabs.ai">Email for pricing and ordering</a></p>
+                    </div>
+                </div>
+
+                <div class="hero-install" style="margin-top: 48px; max-width: 100%;">
+                    <span class="dim"># Install the service (free for personal use):</span><br>
+                    <span class="cmd">curl -fsSL https://brainjack.ai/get | bash</span><br><br>
+                    <span class="dim"># Get the iOS app (free during beta):</span><br>
+                    <span class="cmd"><a href="https://testflight.apple.com/join/z8H86Qfj" rel="noopener" style="color: var(--accent);">testflight.apple.com/join/z8H86Qfj</a></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Press / CTA -->
         <section class="cta-section reveal">
-            <img src="assets/hero-brain-light.jpg" alt="BrainJack brain" class="cta-brain">
-            <h2>Ready to jack in?</h2>
-            <p style="color: var(--text-muted); margin-bottom: 32px; font-size: 1.1rem;">Free to start. Open source. The future is voice.</p>
-            <a href="setup.html" class="btn btn-primary" style="font-size: 1.1rem; padding: 16px 36px;">
-                Get Started Free
-            </a>
+            <h2 class="section-heading">We're in beta. Come break it.</h2>
+            <p class="section-desc">Install the service, grab the app, and try everything. All features unlocked during beta. Bring your own AI backends or use ours. We need real users testing real workflows.</p>
+            <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                <a href="https://github.com/scrappylabsai/brainjack-service" class="btn btn-accent" rel="noopener">Install from GitHub</a>
+                <a href="mailto:brian@scrappylabs.ai" class="btn btn-ghost">Press &amp; partnerships</a>
+            </div>
         </section>
     </main>
 
     <footer>
-        <div class="container">
-            <a href="/" class="logo" style="justify-content: center; margin-bottom: 8px;">
-                <img src="assets/logo-dark.jpg" alt="BrainJack" style="width: 32px; height: 32px; border-radius: 6px;">
-                <span style="font-weight: 800; font-size: 1.1rem;">BrainJack</span>
-            </a>
-            <ul class="footer-links">
-                <li><a href="https://github.com/scrappylabsai/brainjack-agent">GitHub</a></li>
-                <li><a href="https://github.com/scrappylabsai/brainjack-agent/blob/main/LICENSE">License (BSL 1.1)</a></li>
-                <li><a href="/privacy.html">Privacy</a></li>
-                <li><a href="/tos.html">Terms</a></li>
-                <li><a href="mailto:brian@scrappylabs.ai">Support</a></li>
-                <li><a href="https://scrappylabs.ai">ScrappyLabs</a></li>
-            </ul>
-            <div class="copyright">&copy; 2026 ScrappyLabs. Thought to action.</div>
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <img src="assets/logo-dark.jpg" alt="" width="28" height="28">
+                <span>BrainJack</span>
+            </div>
+            <div class="footer-links">
+                <a href="https://github.com/scrappylabsai/brainjack-service" rel="noopener">GitHub</a>
+                <a href="https://github.com/scrappylabsai/brainjack-service/blob/main/LICENSE" rel="noopener">License (BSL 1.1)</a>
+                <a href="/privacy.html">Privacy</a>
+                <a href="/tos.html">Terms</a>
+                <a href="mailto:brian@scrappylabs.ai">Support</a>
+                <a href="https://scrappylabs.ai" rel="noopener">ScrappyLabs</a>
+            </div>
         </div>
+        <p class="copyright">&copy; 2026 ScrappyLabs. Voice to action.</p>
     </footer>
 
     <script>
+        // Mobile nav
+        // (handled inline on button for simplicity)
+
         // Smooth scroll
-        document.querySelectorAll('a[href^="#"]').forEach(a => {
-            a.addEventListener('click', e => {
-                e.preventDefault();
-                const t = document.querySelector(a.getAttribute('href'));
-                if (t) t.scrollIntoView({ behavior: 'smooth' });
+        document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+            a.addEventListener('click', function(e) {
+                var t = document.querySelector(a.getAttribute('href'));
+                if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
             });
         });
 
         // Scroll reveal
-        const obs = new IntersectionObserver(entries => {
-            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-        }, { threshold: 0.1 });
-        document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            var obs = new IntersectionObserver(function(entries) {
+                entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
+        } else {
+            document.querySelectorAll('.reveal').forEach(function(el) { el.classList.add('visible'); });
+        }
     </script>
 </body>
 </html>
