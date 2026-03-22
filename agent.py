@@ -432,7 +432,7 @@ def inject_text(text: str) -> dict:
                 subprocess.run(["pbcopy"], input=part.encode(), check=True, timeout=5)
                 if _HAS_QUARTZ:
                     _cg_post_key(9, 0x100000)  # Cmd+V
-                    time.sleep(0.05)  # let paste settle before next command
+                    time.sleep(0.15)  # let paste settle before next command
                 else:
                     subprocess.run(
                         ["osascript", "-e",
@@ -448,6 +448,9 @@ def inject_text(text: str) -> dict:
                          'tell application "System Events" to key code 36'],
                         capture_output=True, text=True, timeout=5,
                     )
+        # Final settle — ensure paste registers before any following key command
+        if _HAS_QUARTZ:
+            time.sleep(0.15)
         return {"ok": True}
 
     return {"ok": False, "error": f"unsupported platform: {PLATFORM}"}
