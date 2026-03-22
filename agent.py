@@ -694,9 +694,17 @@ async def main(cfg: dict):
     async def ios_compat(connection, request):
         """iOS URLSessionWebSocketTask sends Connection: keep-alive instead of
         Upgrade. Patch it before the websockets library rejects the handshake."""
-        conn = request.headers.get("Connection", "")
-        if "upgrade" not in conn.lower():
-            if request.headers.get("Upgrade", "").lower() == "websocket":
+        conn_vals = request.headers.get_all("Connection")
+        has_upgrade = any("upgrade" in v.lower() for v in conn_vals)
+        if not has_upgrade:
+            upgrade_vals = request.headers.get_all("Upgrade")
+            if any(v.lower() == "websocket" for v in upgrade_vals):
+                # Remove all Connection headers and set the correct one
+                while True:
+                    try:
+                        del request.headers["Connection"]
+                    except KeyError:
+                        break
                 request.headers["Connection"] = "Upgrade"
 
     handler = lambda ws: ws_handler(ws, cfg)
