@@ -305,11 +305,12 @@ def _cg_post_key(keycode: int, flags: int = 0) -> None:
     if flags:
         CGEventSetFlags(e, flags)
     CGEventPost(kCGHIDEventTap, e)
+    time.sleep(0.05)  # hold key down briefly so apps register the press
     e = CGEventCreateKeyboardEvent(None, keycode, False)
     if flags:
         CGEventSetFlags(e, flags)
     CGEventPost(kCGHIDEventTap, e)
-    time.sleep(0.01)
+    time.sleep(0.05)
 
 # Lazy-load Windows backend (only on Windows)
 _win_backend = None
