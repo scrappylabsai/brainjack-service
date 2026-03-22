@@ -10,8 +10,8 @@
 ## Install
 
 ```bash
-git clone https://github.com/scrappylabsai/brainjack-agent.git
-cd brainjack-agent
+git clone https://github.com/scrappylabsai/brainjack-service.git
+cd brainjack-service
 ./install.sh
 ```
 
@@ -34,7 +34,7 @@ Generates a self-signed certificate in `certs/` and configures the agent to use 
 
 ## Grant Accessibility Permission
 
-macOS requires explicit permission for any app that types keystrokes. **Without this, the agent connects but keystrokes won't be injected.**
+macOS requires explicit permission for any app that types keystrokes. **Without this, the agent connects but keystrokes won't be injected** (text still works via clipboard paste).
 
 1. Open **System Settings** > **Privacy & Security** > **Accessibility**
 
@@ -45,16 +45,9 @@ macOS requires explicit permission for any app that types keystrokes. **Without 
 
 2. Click the **+** button (you may need to unlock with your password)
 
-3. Navigate to the Python binary used by the agent:
-   ```
-   /opt/homebrew/Cellar/python@3.XX/X.XX.X/Frameworks/Python.framework/Versions/3.XX/Resources/Python.app
-   ```
-   Replace `3.XX` with your Python version. Find the exact path with:
-   ```bash
-   ls -d /opt/homebrew/Cellar/python@*/*/Frameworks/Python.framework/Versions/*/Resources/Python.app
-   ```
+3. Navigate to `~/brainjack-service/` and select **BrainJack.app**
 
-4. Toggle **Python.app** ON in the Accessibility list
+4. Toggle **BrainJack.app** ON in the Accessibility list
 
 5. Restart the agent:
    ```bash
@@ -65,10 +58,11 @@ macOS requires explicit permission for any app that types keystrokes. **Without 
 ### Verify Accessibility Works
 
 ```bash
-osascript -e 'tell application "System Events" to keystroke "test"'
+cd ~/brainjack-service
+./docs/verify-macos.sh
 ```
 
-If this types "test" into the frontmost app, permissions are correct. If you get error 1002 ("not allowed to send keystrokes"), repeat the steps above.
+Check line 9 — it should say `PASS Accessibility: granted (CGEvents)`. If it says FAIL, repeat the steps above.
 
 ## Service Management
 
@@ -77,7 +71,7 @@ If this types "test" into the frontmost app, permissions are correct. If you get
 launchctl list com.brainjack.agent
 
 # View logs
-tail -f ~/brainjack-agent/brainjack.log
+tail -f ~/brainjack-service/brainjack.log
 
 # Stop
 launchctl unload ~/Library/LaunchAgents/com.brainjack.agent.plist
@@ -100,7 +94,7 @@ The agent starts automatically on login via launchd (`KeepAlive = true`).
    - **Name**: your Mac's name (e.g., "Work Mac")
    - **OS**: macOS
    - **WiFi IP**: `YOUR_MAC_IP:9898`
-   - **Auth Token**: the token from install (find it with `grep BRAINJACK_TOKEN ~/brainjack-agent/.env`)
+   - **Auth Token**: the token from install (find it with `grep BRAINJACK_TOKEN ~/brainjack-service/.env`)
 4. Tap **Connect**
 
 The connection indicator should turn green. Speak into the mic -- your words appear wherever the cursor is on your Mac.
@@ -114,10 +108,10 @@ Visit [brainjack.ai/setup](https://brainjack.ai/setup), fill in your Mac's IP an
 | Symptom | Fix |
 |---------|-----|
 | Agent not running after reboot | Check `launchctl list com.brainjack.agent` -- PID should be present. If not, re-run `./install.sh` |
-| "osascript is not allowed to send keystrokes" | Grant Accessibility permission (see above) |
+| "Not authorized" or keystrokes don't work | Grant Accessibility permission to BrainJack.app (see above) |
 | Connection refused on port 9898 | Check firewall: System Settings > Network > Firewall. Add Python or disable for testing |
-| Auth fails from iOS app | Verify token matches: `grep BRAINJACK_TOKEN ~/brainjack-agent/.env` |
-| Agent crashes on Python 3.14+ | Check `~/brainjack-agent/brainjack.log` -- if `websockets` import fails, update it: `.venv/bin/pip install -U websockets` |
+| Auth fails from iOS app | Verify token matches: `grep BRAINJACK_TOKEN ~/brainjack-service/.env` |
+| Agent crashes on Python 3.14+ | Check `~/brainjack-service/brainjack.log` -- if `websockets` import fails, update it: `.venv/bin/pip install -U websockets` |
 | Keystrokes go to wrong app | BrainJack types into whatever window has focus. Click the target app first |
 
 ## Uninstall
@@ -128,15 +122,15 @@ launchctl unload ~/Library/LaunchAgents/com.brainjack.agent.plist
 rm ~/Library/LaunchAgents/com.brainjack.agent.plist
 
 # Remove the agent directory
-rm -rf ~/brainjack-agent
+rm -rf ~/brainjack-service
 
 # Remove Accessibility permission
-# System Settings > Privacy & Security > Accessibility > remove Python.app
+# System Settings > Privacy & Security > Accessibility > remove BrainJack.app
 ```
 
 ## Configuration
 
-All settings are in `~/brainjack-agent/.env`. See the main [README](../README.md#configuration) for full reference.
+All settings are in `~/brainjack-service/.env`. See the main [README](../README.md#configuration) for full reference.
 
 Key settings for macOS:
 
@@ -148,10 +142,12 @@ Key settings for macOS:
 
 ## How It Works on macOS
 
-BrainJack uses `osascript` (AppleScript via System Events) for all input injection:
+BrainJack uses **Quartz CGEvents** (Accessibility API) for keystroke injection:
 
-- **Text**: `tell application "System Events" to keystroke "text"`
-- **Keys**: `tell application "System Events" to key code XX` (mapped from universal key names)
-- **Combos**: `tell application "System Events" to key code XX using {modifier down, ...}`
+- **Text**: clipboard paste via `pbcopy` + CGEvent Cmd+V
+- **Keys**: `CGEventCreateKeyboardEvent` with macOS virtual keycodes
+- **Combos**: CGEvent key press with modifier flags (Cmd, Ctrl, Shift, Option)
 
-This is the same mechanism macOS automation tools like Keyboard Maestro use. It works with any application that accepts keyboard input -- native apps, Electron apps, Terminal, browsers, everything.
+This uses the same low-level API that macOS automation tools like Keyboard Maestro use. It works with any application that accepts keyboard input -- native apps, Electron apps, Terminal, browsers, everything.
+
+On systems without `pyobjc-framework-Quartz`, BrainJack falls back to `osascript` (AppleScript via System Events), which requires a separate Automation permission.

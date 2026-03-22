@@ -127,7 +127,7 @@ Your data never leaves your network unless you want it to.
 
 ## Features
 
-- **Cross-platform keystrokes** — SendInput (Windows), osascript (macOS), xdotool/ydotool (Linux)
+- **Cross-platform keystrokes** — SendInput (Windows), CGEvents (macOS), xdotool/ydotool (Linux)
 - **Agent mode** — LLM translates speech into keyboard actions, app navigation, shell commands
 - **Command sheets** — macro palettes for Vim, tmux, VS Code, shell
 - **Live mode** — continuous listening, auto-send
