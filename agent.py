@@ -691,8 +691,17 @@ async def main(cfg: dict):
     if cfg["behind_proxy"]:
         print("[brainjack] Proxy mode: trusting X-Forwarded-For")
 
+    async def ios_compat(connection, request):
+        """iOS URLSessionWebSocketTask sends Connection: keep-alive instead of
+        Upgrade. Patch it before the websockets library rejects the handshake."""
+        conn = request.headers.get("Connection", "")
+        if "upgrade" not in conn.lower():
+            if request.headers.get("Upgrade", "").lower() == "websocket":
+                request.headers["Connection"] = "Upgrade"
+
     handler = lambda ws: ws_handler(ws, cfg)
-    async with websockets.serve(handler, host, port, ssl=ssl_ctx):
+    async with websockets.serve(handler, host, port, ssl=ssl_ctx,
+                                process_request=ios_compat):
         await asyncio.Future()  # run forever
 
 
