@@ -432,6 +432,7 @@ def inject_text(text: str) -> dict:
                 subprocess.run(["pbcopy"], input=part.encode(), check=True, timeout=5)
                 if _HAS_QUARTZ:
                     _cg_post_key(9, 0x100000)  # Cmd+V
+                    time.sleep(0.05)  # let paste settle before next command
                 else:
                     subprocess.run(
                         ["osascript", "-e",
