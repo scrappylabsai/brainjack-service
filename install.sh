@@ -166,24 +166,36 @@ if [ "$OS" = "Darwin" ]; then
     launchctl load "$PLIST_DST"
     echo "[brainjack] LaunchAgent installed."
 
-    # --- Accessibility permission ---
-    # Check if already granted
-    if osascript -e 'tell application "System Events" to keystroke ""' 2>/dev/null; then
-        echo "[brainjack] ✓ Accessibility already granted."
+    # --- Accessibility permission (required for CGEvent keystroke injection) ---
+    # Test with a CGEvent post — this checks Accessibility, not Automation
+    CG_TEST=$("$DIR/.venv/bin/python" -c "
+try:
+    from Quartz import CGEventCreateKeyboardEvent, CGEventPost, kCGHIDEventTap
+    e = CGEventCreateKeyboardEvent(None, 0, True)
+    if e is None:
+        print('DENIED')
+    else:
+        print('OK')
+except Exception:
+    print('NO_QUARTZ')
+" 2>/dev/null)
+
+    if [ "$CG_TEST" = "OK" ]; then
+        echo "[brainjack] ✓ Accessibility permission granted."
     else
         echo ""
         echo "╔══════════════════════════════════════════════════════════╗"
         echo "║              Accessibility Permission                   ║"
         echo "╠══════════════════════════════════════════════════════════╣"
         echo "║                                                         ║"
-        echo "║  BrainJack needs permission to type keystrokes.         ║"
+        echo "║  BrainJack needs Accessibility permission to type.      ║"
         echo "║                                                         ║"
         echo "║  1. System Settings is opening to Accessibility...      ║"
         echo "║  2. Click the + button (unlock with password if needed) ║"
-        echo "║  3. Select BrainJack.app from the Finder window         ║"
-        echo "║  4. Toggle it ON                                        ║"
+        echo "║  3. Navigate to: $(echo "$DIR" | sed "s|$HOME|~|")      "
+        echo "║  4. Select BrainJack.app → toggle it ON                 ║"
         echo "║                                                         ║"
-        echo "║  Skip? BrainJack still works in clipboard-only mode.    ║"
+        echo "║  Skip? BrainJack still works in clipboard-paste mode.   ║"
         echo "║                                                         ║"
         echo "╚══════════════════════════════════════════════════════════╝"
         echo ""
@@ -195,15 +207,23 @@ if [ "$OS" = "Darwin" ]; then
         if [ -t 0 ]; then
             echo "[brainjack] Press ENTER after granting permission (or ENTER to skip)..."
             read -r
-            if osascript -e 'tell application "System Events" to keystroke ""' 2>/dev/null; then
+            CG_TEST2=$("$DIR/.venv/bin/python" -c "
+try:
+    from Quartz import CGEventCreateKeyboardEvent
+    e = CGEventCreateKeyboardEvent(None, 0, True)
+    print('OK' if e else 'DENIED')
+except: print('DENIED')
+" 2>/dev/null)
+            if [ "$CG_TEST2" = "OK" ]; then
                 echo "[brainjack] ✓ Accessibility permission granted!"
             else
-                echo "[brainjack] ⚠ Accessibility not granted yet."
-                echo "[brainjack] Keystrokes won't work until you add BrainJack.app."
+                echo "[brainjack] ⚠ Accessibility not granted — keystrokes need BrainJack.app added."
                 echo "[brainjack] → System Settings > Privacy & Security > Accessibility"
+                echo "[brainjack] Typing still works via clipboard paste. Key combos require Accessibility."
             fi
         else
             echo "[brainjack] Non-interactive — grant Accessibility permission manually."
+            echo "[brainjack] → System Settings > Privacy & Security > Accessibility > add BrainJack.app"
         fi
     fi
 else

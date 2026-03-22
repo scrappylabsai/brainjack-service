@@ -88,9 +88,21 @@ else
     fail "Port $PORT: not listening"
 fi
 
-# 9. Accessibility permission
-if osascript -e 'tell application "System Events" to keystroke ""' 2>/dev/null; then
-    pass "Accessibility: granted"
+# 9. Quartz CGEvent support
+CG_RESULT=$("$DIR/.venv/bin/python" -c "
+try:
+    from Quartz import CGEventCreateKeyboardEvent, kCGHIDEventTap
+    e = CGEventCreateKeyboardEvent(None, 0, True)
+    print('OK' if e else 'DENIED')
+except ImportError:
+    print('NO_QUARTZ')
+except Exception:
+    print('DENIED')
+" 2>/dev/null)
+if [ "$CG_RESULT" = "OK" ]; then
+    pass "Accessibility: granted (CGEvents)"
+elif [ "$CG_RESULT" = "NO_QUARTZ" ]; then
+    warn "pyobjc-framework-Quartz not installed — falling back to osascript"
 else
     fail "Accessibility: NOT granted — add BrainJack.app in System Settings > Privacy & Security > Accessibility"
 fi

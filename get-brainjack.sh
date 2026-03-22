@@ -19,7 +19,7 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 INSTALL_DIR="$HOME/.brainjack"
-REPO="scrappylabsai/brainjack-agent"
+REPO="scrappylabsai/brainjack-service"
 BRANCH="main"
 MIN_PYTHON="3.10"
 
@@ -268,28 +268,17 @@ if [ "$OS" = "Darwin" ]; then
     echo -e "  ${YELLOW}System Settings is opening now — just follow these steps:${NC}"
     echo ""
     echo -e "  ${BOLD}1.${NC} Click the ${BOLD}+${NC} button (enter your password if asked)"
-    echo -e "  ${BOLD}2.${NC} Press ${BOLD}Cmd+Shift+G${NC} and paste this path:"
+    echo -e "  ${BOLD}2.${NC} Navigate to: ${GREEN}$INSTALL_DIR${NC}"
+    echo -e "  ${BOLD}3.${NC} Select ${GREEN}BrainJack.app${NC}"
+    echo -e "  ${BOLD}4.${NC} Toggle it ${GREEN}ON${NC}"
+    echo ""
+    echo -e "  ${DIM}  Skip this if you only want clipboard mode (no key combos).${NC}"
     echo ""
 
-    # Find the actual Python.app path (resolve venv symlinks)
-    PYTHON_REAL=$("$INSTALL_DIR/.venv/bin/python" -c "import sys, os; print(os.path.realpath(sys.executable))" 2>/dev/null)
-    PYTHON_APP=$(echo "$PYTHON_REAL" | sed 's|/bin/python[0-9.]*|/Resources/Python.app|' 2>/dev/null || true)
-    if [ -d "$PYTHON_APP" ]; then
-        echo -e "     ${GREEN}$PYTHON_APP${NC}"
-    else
-        # Fallback: show the framework directory
-        PYTHON_FW=$(echo "$PYTHON_REAL" | sed 's|/bin/python[0-9.]*$||')
-        echo -e "     ${GREEN}$PYTHON_FW${NC}"
-    fi
-
-    echo ""
-    echo -e "  ${BOLD}3.${NC} Toggle it ${GREEN}ON${NC}"
-    echo ""
-    echo -e "  ${DIM}  Skip this if you only want clipboard mode (no typing into your Mac).${NC}"
-    echo ""
-
-    # Open System Settings
+    # Open System Settings + reveal BrainJack.app
     open "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility" 2>/dev/null || true
+    sleep 1
+    open -R "$INSTALL_DIR/BrainJack.app" 2>/dev/null || true
 fi
 
 # ── Get local IP ─────────────────────────────────────────────
