@@ -1,0 +1,16 @@
+{
+  "site": "dashboard",
+  "target_url": "https://dashboard.stripe.com/apikeys",
+  "final_url": "https://dashboard.stripe.com/acct_1TDZoe2KVE1styxl/test/apikeys",
+  "title": "Developers – ScrappyLabs.ai – Stripe [Test]",
+  "framework": {
+    "nextjs": false,
+    "nuxt": false,
+    "react": false,
+    "vue2": false,
+    "vue3": false
+  },
+  "stores": [],
+  "top_strategy": "public",
+  "explored_at": "2026-03-22T00:41:33.910Z"
+}

@@ -6,6 +6,8 @@
 <p align="center">
   <a href="https://testflight.apple.com/join/z8H86Qfj"><img src="https://img.shields.io/badge/iOS_App-TestFlight-blue?logo=apple&logoColor=white" alt="TestFlight"></a>
   <a href="https://brainjack.ai"><img src="https://img.shields.io/badge/website-brainjack.ai-orange" alt="Website"></a>
+  <a href="https://discord.gg/ekRv2zJCHT"><img src="https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white" alt="Discord"></a>
+  <a href="https://brainjack.ai/dongle"><img src="https://img.shields.io/badge/dongle-order_now-e84393" alt="Order Dongle"></a>
   <a href="https://github.com/scrappylabsai/brainjack-service/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-BSL%201.1-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-green" alt="Platform">
 </p>
@@ -68,7 +70,7 @@ The BrainJack dongle is a pre-flashed USB device that appears as a standard keyb
 
 Your phone connects to the dongle over WiFi or Bluetooth. You speak, the dongle types.
 
-**[Get a dongle →](mailto:brian@scrappylabs.ai)**
+**[Order a dongle →](https://brainjack.ai/dongle)**
 
 </details>
 
@@ -317,7 +319,7 @@ Auth: `ws://host:9898?token=YOUR_TOKEN` or `{"cmd": "auth", "token": "..."}` as 
 |-----------|------|
 | **[BrainJack Service](https://github.com/scrappylabsai/brainjack-service)** | This repo — keystroke injection daemon |
 | **[BrainJack iOS App](https://testflight.apple.com/join/z8H86Qfj)** | Voice control with ASR, agent mode, multi-device |
-| **[BrainJack Dongle](mailto:brian@scrappylabs.ai)** | USB dongle — zero software on target |
+| **[BrainJack Dongle](https://brainjack.ai/dongle)** | USB dongle — zero software on target, order now |
 | **[brainjack.ai](https://brainjack.ai)** | Website, interactive demo, setup guide |
 
 ---
@@ -326,6 +328,7 @@ Auth: `ws://host:9898?token=YOUR_TOKEN` or `{"cmd": "auth", "token": "..."}` as 
 
 We're a small team and we build what people need. Custom firmware, workflow integrations, accessibility adaptations, enterprise setups — if you have an idea, we want to hear it.
 
+- **[Discord](https://discord.gg/ekRv2zJCHT)** — community, setup help, beta feedback
 - **[GitHub Discussions](https://github.com/scrappylabsai/brainjack-service/discussions)** — feature requests, show off your setup, get help
 - **Email** — [brian@scrappylabs.ai](mailto:brian@scrappylabs.ai) — direct line, real human, fast reply
 - **Beta testers** — [join on TestFlight](https://testflight.apple.com/join/z8H86Qfj) and tell us what's broken or missing
