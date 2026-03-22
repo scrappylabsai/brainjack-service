@@ -268,6 +268,49 @@ def detect_platform() -> str:
 
 PLATFORM = detect_platform()
 
+# Lazy-load Quartz CGEvent backend (macOS — Accessibility API, no osascript needed)
+_HAS_QUARTZ = False
+if PLATFORM == "macos":
+    try:
+        from Quartz import (
+            CGEventCreateKeyboardEvent, CGEventPost, kCGHIDEventTap,
+            CGEventSetFlags,
+        )
+        _HAS_QUARTZ = True
+    except ImportError:
+        pass
+
+CG_MOD_FLAGS = {
+    "ctrl": 0x40000, "control": 0x40000,
+    "alt": 0x80000, "option": 0x80000,
+    "shift": 0x20000,
+    "cmd": 0x100000, "gui": 0x100000, "meta": 0x100000,
+    "super": 0x100000, "command": 0x100000,
+}
+
+CG_CHAR_KEYCODES = {
+    'a': 0, 'b': 11, 'c': 8, 'd': 2, 'e': 14, 'f': 3, 'g': 5, 'h': 4,
+    'i': 34, 'j': 38, 'k': 40, 'l': 37, 'm': 46, 'n': 45, 'o': 31,
+    'p': 35, 'q': 12, 'r': 15, 's': 1, 't': 17, 'u': 32, 'v': 9,
+    'w': 13, 'x': 7, 'y': 16, 'z': 6,
+    '0': 29, '1': 18, '2': 19, '3': 20, '4': 21, '5': 23, '6': 22,
+    '7': 26, '8': 28, '9': 25,
+    ' ': 49, '-': 27, '=': 24, '[': 33, ']': 30, '\\': 42, ';': 41,
+    "'": 39, ',': 43, '.': 47, '/': 44, '`': 50,
+}
+
+def _cg_post_key(keycode: int, flags: int = 0) -> None:
+    """Post a key down+up via Quartz CGEvents (Accessibility API)."""
+    e = CGEventCreateKeyboardEvent(None, keycode, True)
+    if flags:
+        CGEventSetFlags(e, flags)
+    CGEventPost(kCGHIDEventTap, e)
+    e = CGEventCreateKeyboardEvent(None, keycode, False)
+    if flags:
+        CGEventSetFlags(e, flags)
+    CGEventPost(kCGHIDEventTap, e)
+    time.sleep(0.01)
+
 # Lazy-load Windows backend (only on Windows)
 _win_backend = None
 if PLATFORM == "windows":
@@ -387,17 +430,23 @@ def inject_text(text: str) -> dict:
         for i, part in enumerate(parts):
             if part:
                 subprocess.run(["pbcopy"], input=part.encode(), check=True, timeout=5)
-                subprocess.run(
-                    ["osascript", "-e",
-                     'tell application "System Events" to keystroke "v" using command down'],
-                    capture_output=True, text=True, timeout=5,
-                )
+                if _HAS_QUARTZ:
+                    _cg_post_key(9, 0x100000)  # Cmd+V
+                else:
+                    subprocess.run(
+                        ["osascript", "-e",
+                         'tell application "System Events" to keystroke "v" using command down'],
+                        capture_output=True, text=True, timeout=5,
+                    )
             if i < len(parts) - 1:
-                subprocess.run(
-                    ["osascript", "-e",
-                     'tell application "System Events" to key code 36'],
-                    capture_output=True, text=True, timeout=5,
-                )
+                if _HAS_QUARTZ:
+                    _cg_post_key(36)  # Return
+                else:
+                    subprocess.run(
+                        ["osascript", "-e",
+                         'tell application "System Events" to key code 36'],
+                        capture_output=True, text=True, timeout=5,
+                    )
         return {"ok": True}
 
     return {"ok": False, "error": f"unsupported platform: {PLATFORM}"}
@@ -444,21 +493,32 @@ def inject_key(key: str) -> dict:
 
     if PLATFORM == "macos":
         upper = key.upper()
-        if upper in OSASCRIPT_KEYCODES:
-            code = OSASCRIPT_KEYCODES[upper]
+        if _HAS_QUARTZ:
+            if upper in OSASCRIPT_KEYCODES:
+                _cg_post_key(OSASCRIPT_KEYCODES[upper])
+                return {"ok": True}
+            lower = key.lower()
+            if lower in CG_CHAR_KEYCODES:
+                flags = 0x20000 if key != lower and key.isalpha() else 0
+                _cg_post_key(CG_CHAR_KEYCODES[lower], flags)
+                return {"ok": True}
+            return {"ok": False, "error": f"unknown key: {key}"}
+        else:
+            if upper in OSASCRIPT_KEYCODES:
+                code = OSASCRIPT_KEYCODES[upper]
+                r = subprocess.run(
+                    ["osascript", "-e",
+                     f'tell application "System Events" to key code {code}'],
+                    capture_output=True, text=True, timeout=5,
+                )
+                return {"ok": r.returncode == 0, "error": r.stderr.strip() or None}
+            escaped = key.replace("\\", "\\\\").replace('"', '\\"')
             r = subprocess.run(
                 ["osascript", "-e",
-                 f'tell application "System Events" to key code {code}'],
+                 f'tell application "System Events" to keystroke "{escaped}"'],
                 capture_output=True, text=True, timeout=5,
             )
             return {"ok": r.returncode == 0, "error": r.stderr.strip() or None}
-        escaped = key.replace("\\", "\\\\").replace('"', '\\"')
-        r = subprocess.run(
-            ["osascript", "-e",
-             f'tell application "System Events" to keystroke "{escaped}"'],
-            capture_output=True, text=True, timeout=5,
-        )
-        return {"ok": r.returncode == 0, "error": r.stderr.strip() or None}
 
     return {"ok": False, "error": f"unsupported platform: {PLATFORM}"}
 
@@ -512,27 +572,42 @@ def inject_combo(keys: str) -> dict:
 
     if PLATFORM == "macos":
         *mods, main_key = parts
-        using_parts = []
-        for m in mods:
-            if m in OSASCRIPT_MODIFIERS:
-                using_parts.append(OSASCRIPT_MODIFIERS[m])
 
-        upper = main_key.upper()
-        using_clause = ", ".join(using_parts)
-        using = f" using {{{using_clause}}}" if using_parts else ""
-
-        if upper in OSASCRIPT_KEYCODES:
-            code = OSASCRIPT_KEYCODES[upper]
-            script = f'tell application "System Events" to key code {code}{using}'
+        if _HAS_QUARTZ:
+            flags = 0
+            for m in mods:
+                if m in CG_MOD_FLAGS:
+                    flags |= CG_MOD_FLAGS[m]
+            upper = main_key.upper()
+            if upper in OSASCRIPT_KEYCODES:
+                _cg_post_key(OSASCRIPT_KEYCODES[upper], flags)
+            elif main_key.lower() in CG_CHAR_KEYCODES:
+                _cg_post_key(CG_CHAR_KEYCODES[main_key.lower()], flags)
+            else:
+                return {"ok": False, "error": f"unknown key in combo: {main_key}"}
+            return {"ok": True}
         else:
-            escaped = main_key.replace("\\", "\\\\").replace('"', '\\"')
-            script = f'tell application "System Events" to keystroke "{escaped}"{using}'
+            using_parts = []
+            for m in mods:
+                if m in OSASCRIPT_MODIFIERS:
+                    using_parts.append(OSASCRIPT_MODIFIERS[m])
 
-        r = subprocess.run(
-            ["osascript", "-e", script],
-            capture_output=True, text=True, timeout=5,
-        )
-        return {"ok": r.returncode == 0, "error": r.stderr.strip() or None}
+            upper = main_key.upper()
+            using_clause = ", ".join(using_parts)
+            using = f" using {{{using_clause}}}" if using_parts else ""
+
+            if upper in OSASCRIPT_KEYCODES:
+                code = OSASCRIPT_KEYCODES[upper]
+                script = f'tell application "System Events" to key code {code}{using}'
+            else:
+                escaped = main_key.replace("\\", "\\\\").replace('"', '\\"')
+                script = f'tell application "System Events" to keystroke "{escaped}"{using}'
+
+            r = subprocess.run(
+                ["osascript", "-e", script],
+                capture_output=True, text=True, timeout=5,
+            )
+            return {"ok": r.returncode == 0, "error": r.stderr.strip() or None}
 
     return {"ok": False, "error": f"unsupported platform: {PLATFORM}"}
 

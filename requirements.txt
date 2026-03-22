@@ -1,2 +1,3 @@
 websockets
 qrcode
+pyobjc-framework-Quartz; sys_platform == "darwin"
