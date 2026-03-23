@@ -193,6 +193,30 @@ if [ "$OS" = "Linux" ]; then
     fi
 fi
 
+# ── Build BrainJack.app wrapper (macOS) ───────────────────────
+if [ "$OS" = "Darwin" ]; then
+    step "Building BrainJack.app"
+    rm -rf "$INSTALL_DIR/BrainJack.app"
+
+    # osacompile creates a proper Cocoa app bundle.
+    # macOS grants Accessibility permission to the app, not raw Python.
+    osacompile -o "$INSTALL_DIR/BrainJack.app" -e \
+        "do shell script \"exec '"'"'$INSTALL_DIR/.venv/bin/python'"'"' '"'"'$INSTALL_DIR/agent.py'"'"' >> '"'"'$INSTALL_DIR/brainjack.log'"'"' 2>&1\""
+
+    # Set bundle identity
+    APLIST="$INSTALL_DIR/BrainJack.app/Contents/Info.plist"
+    /usr/libexec/PlistBuddy -c "Add :CFBundleIdentifier string ai.scrappylabs.brainjack" "$APLIST" 2>/dev/null || true
+    /usr/libexec/PlistBuddy -c "Set :CFBundleName BrainJack" "$APLIST" 2>/dev/null || true
+    /usr/libexec/PlistBuddy -c "Add :LSUIElement bool true" "$APLIST" 2>/dev/null || \
+        /usr/libexec/PlistBuddy -c "Set :LSUIElement true" "$APLIST" 2>/dev/null || true
+
+    if [ -f "$INSTALL_DIR/BrainJack.app/Contents/MacOS/applet" ]; then
+        ok "BrainJack.app created"
+    else
+        fail "Failed to build BrainJack.app — osacompile may not be available"
+    fi
+fi
+
 # ── Install background service ───────────────────────────────
 step "Installing background service"
 
@@ -251,6 +275,9 @@ done
 if [ "$RUNNING" = true ]; then
     ok "Service running on port $PORT"
 else
+    if [ "$OS" = "Darwin" ] && [ ! -f "$INSTALL_DIR/BrainJack.app/Contents/MacOS/applet" ]; then
+        fail "BrainJack.app binary missing — build failed. Try running the installer again."
+    fi
     warn "Service may still be starting. Check logs:"
     if [ "$OS" = "Darwin" ]; then
         info "tail -f $INSTALL_DIR/brainjack.log"
@@ -367,7 +394,7 @@ QREOF
 # Inject the device-specific values
 cat >> "$QR_HTML" << EOF
 var deviceData = {
-  brainjack: true,
+  brainjack: 1,
   name: "$HOSTNAME_SHORT",
   ip: "$LOCAL_IP",
   port: $PORT,
