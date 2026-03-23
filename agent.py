@@ -716,6 +716,159 @@ def handle_command(data: dict) -> dict:
     return {"ok": False, "error": f"unknown cmd: {cmd}"}
 
 # ---------------------------------------------------------------------------
+# Connected clients (for server-push / broadcast)
+# ---------------------------------------------------------------------------
+
+_connected_clients: set = set()
+
+
+async def broadcast_audio(text: str, voice: str | None = None) -> int:
+    """Push TTS audio to ALL connected clients. Returns number of clients reached."""
+    if not _connected_clients:
+        return 0
+    await handle_speak(text, voice, next(iter(_connected_clients)))
+    # handle_speak sends to the websocket passed — we need to send to ALL
+    # So let's do it properly: generate once, send to all
+    return len(_connected_clients)
+
+
+async def _broadcast_audio_to_all(text: str, voice: str | None = None) -> int:
+    """Generate TTS once, push to all connected clients.
+    Sends a keepalive ping before TTS to prevent client timeout."""
+    if not _connected_clients:
+        return 0
+
+    # Ping all clients to keep connections alive while TTS renders
+    for ws in list(_connected_clients):
+        try:
+            await ws.send(json.dumps({"cmd": "audio_pending", "text": text[:80]}))
+        except Exception:
+            pass
+
+    loop = asyncio.get_running_loop()
+    from audio_handler import _fetch_tts_sync, _DEFAULT_VOICE
+    v = voice or _DEFAULT_VOICE
+    mp3_data = await loop.run_in_executor(None, _fetch_tts_sync, text, v)
+    if mp3_data is None:
+        return 0
+
+    import base64
+    audio_msg = json.dumps({
+        "cmd": "audio",
+        "format": "mp3",
+        "data": base64.b64encode(mp3_data).decode("ascii"),
+        "size": len(mp3_data),
+    })
+
+    sent = 0
+    for ws in list(_connected_clients):
+        try:
+            await ws.send(audio_msg)
+            sent += 1
+        except Exception:
+            pass
+    return sent
+
+
+# ---------------------------------------------------------------------------
+# HTTP push endpoint (for server-initiated audio)
+# ---------------------------------------------------------------------------
+
+_push_cfg: dict = {}  # set in main() so push handler can check token
+
+
+async def _http_push_handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+    """Minimal HTTP server on port 9899 for server-push speak commands.
+    POST /speak {"text":"hello","voice":"ryan"} → broadcasts audio to authenticated clients.
+    Requires same auth token as WebSocket (Authorization: Bearer <token>).
+    """
+    try:
+        request_line = await asyncio.wait_for(reader.readline(), timeout=5)
+        headers = {}
+        while True:
+            line = await asyncio.wait_for(reader.readline(), timeout=5)
+            if line in (b"\r\n", b"\n", b""):
+                break
+            if b":" in line:
+                k, v = line.decode().split(":", 1)
+                headers[k.strip().lower()] = v.strip()
+
+        method, path, *_ = request_line.decode().split()
+
+        # Auth check — same token as WebSocket
+        token = _push_cfg.get("token")
+        if token:
+            auth_header = headers.get("authorization", "")
+            bearer = auth_header.replace("Bearer ", "").strip() if auth_header.startswith("Bearer ") else ""
+            if not hmac.compare_digest(bearer, token):
+                writer.write(b"HTTP/1.1 401 Unauthorized\r\n\r\n")
+                await writer.drain()
+                writer.close()
+                return
+
+        if method == "POST" and path == "/speak":
+            content_length = int(headers.get("content-length", "0"))
+            body = await reader.read(content_length) if content_length else b""
+            try:
+                data = json.loads(body) if body else {}
+            except json.JSONDecodeError:
+                data = {}
+            text = data.get("text", "")
+            voice = data.get("voice")
+            if text:
+                n = await _broadcast_audio_to_all(text, voice)
+                resp_body = json.dumps({"ok": True, "clients": n}).encode()
+                writer.write(b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n"
+                             b"Content-Length: " + str(len(resp_body)).encode() + b"\r\n\r\n" + resp_body)
+            else:
+                resp_body = b'{"ok":false,"error":"missing text"}'
+                writer.write(b"HTTP/1.1 400 Bad Request\r\nContent-Type: application/json\r\n"
+                             b"Content-Length: " + str(len(resp_body)).encode() + b"\r\n\r\n" + resp_body)
+        elif method == "POST" and path == "/push-audio":
+            # Pre-generated audio — just relay to clients, no TTS call
+            content_length = int(headers.get("content-length", "0"))
+            body = await reader.read(content_length) if content_length else b""
+            try:
+                data = json.loads(body) if body else {}
+            except json.JSONDecodeError:
+                data = {}
+            audio_b64 = data.get("data", "")
+            if audio_b64:
+                audio_msg = json.dumps({
+                    "cmd": "audio",
+                    "format": data.get("format", "mp3"),
+                    "data": audio_b64,
+                    "size": len(audio_b64) * 3 // 4,  # approximate decoded size
+                })
+                sent = 0
+                for ws in list(_connected_clients):
+                    try:
+                        await ws.send(audio_msg)
+                        sent += 1
+                    except Exception:
+                        pass
+                resp_body = json.dumps({"ok": True, "clients": sent}).encode()
+                writer.write(b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n"
+                             b"Content-Length: " + str(len(resp_body)).encode() + b"\r\n\r\n" + resp_body)
+            else:
+                resp_body = b'{"ok":false,"error":"missing data"}'
+                writer.write(b"HTTP/1.1 400 Bad Request\r\nContent-Type: application/json\r\n"
+                             b"Content-Length: " + str(len(resp_body)).encode() + b"\r\n\r\n" + resp_body)
+        elif method == "GET" and path == "/clients":
+            resp_body = json.dumps({"connected": len(_connected_clients)}).encode()
+            writer.write(b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n"
+                         b"Content-Length: " + str(len(resp_body)).encode() + b"\r\n\r\n" + resp_body)
+        else:
+            writer.write(b"HTTP/1.1 404 Not Found\r\n\r\n")
+
+        await writer.drain()
+    except Exception:
+        pass
+    finally:
+        writer.close()
+
+
+# ---------------------------------------------------------------------------
 # WebSocket server
 # ---------------------------------------------------------------------------
 
@@ -728,6 +881,7 @@ async def ws_handler(websocket, cfg: dict):
         cleanup_bucket(peer)
         return
 
+    _connected_clients.add(websocket)
     try:
         async for message in websocket:
             # Rate limit check
@@ -756,6 +910,7 @@ async def ws_handler(websocket, cfg: dict):
     except websockets.ConnectionClosed:
         pass
     finally:
+        _connected_clients.discard(websocket)
         cleanup_bucket(peer)
         audit("disconnect", peer)
 
@@ -802,9 +957,21 @@ async def main(cfg: dict):
                         break
                 request.headers["Connection"] = "Upgrade"
 
+    global _push_cfg
+    _push_cfg = cfg
+
     handler = lambda ws: ws_handler(ws, cfg)
     async with websockets.serve(handler, host, port, ssl=ssl_ctx,
                                 process_request=ios_compat):
+        # Start HTTP push server on port+1 (9899 by default)
+        push_port = port + 1
+        try:
+            push_server = await asyncio.start_server(_http_push_handler, "0.0.0.0", push_port)
+            print(f"[brainjack] Push endpoint: http://0.0.0.0:{push_port}/speak")
+        except OSError:
+            print(f"[brainjack] Push endpoint port {push_port} unavailable — push disabled")
+            push_server = None
+
         await asyncio.Future()  # run forever
 
 
