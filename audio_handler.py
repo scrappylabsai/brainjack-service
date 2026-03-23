@@ -52,6 +52,9 @@ async def handle_speak(text: str, voice: str | None, websocket) -> None:
 
     voice = voice or _DEFAULT_VOICE
 
+    # Ack immediately so client knows we're working on it (prevents timeout)
+    await websocket.send(json.dumps({"cmd": "audio_pending", "text": text[:80]}))
+
     # Run sync HTTP in threadpool
     loop = asyncio.get_running_loop()
     mp3_data = await loop.run_in_executor(None, _fetch_tts_sync, text, voice)
