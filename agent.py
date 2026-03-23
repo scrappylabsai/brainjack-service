@@ -10,6 +10,7 @@ Protocol:
     {"cmd":"key","key":"Return"}
     {"cmd":"combo","keys":"ctrl+c"}
     {"cmd":"status"}
+    {"cmd":"speak","text":"hello","voice":"ryan"}  (TTS → audio return)
     {"cmd":"auth","token":"..."}  (first-message auth mode)
 
 Security:
@@ -35,6 +36,8 @@ import sys
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+
+from audio_handler import handle_speak
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
@@ -81,6 +84,8 @@ def load_config(cli_args: argparse.Namespace) -> dict:
         "audit_log": os.environ.get("BRAINJACK_AUDIT_LOG", ""),
         "audit_max_bytes": int(os.environ.get("BRAINJACK_AUDIT_MAX_BYTES", "10485760")),
         "audit_backup_count": int(os.environ.get("BRAINJACK_AUDIT_BACKUP_COUNT", "5")),
+        "tts_url": os.environ.get("BRAINJACK_TTS_URL", "http://192.168.4.139:8765"),
+        "tts_voice": os.environ.get("BRAINJACK_TTS_VOICE", "ryan"),
     }
 
     # Proxy mode overrides
@@ -704,6 +709,10 @@ def handle_command(data: dict) -> dict:
     if cmd == "status":
         return get_context()
 
+    if cmd == "speak":
+        # Handled async in ws_handler — return sentinel
+        return {"_async": "speak", "text": data.get("text", ""), "voice": data.get("voice")}
+
     return {"ok": False, "error": f"unknown cmd: {cmd}"}
 
 # ---------------------------------------------------------------------------
@@ -737,6 +746,12 @@ async def ws_handler(websocket, cfg: dict):
             audit("cmd", peer, cmd=cmd)
 
             result = handle_command(data)
+
+            # Async commands (speak → TTS → audio return)
+            if isinstance(result, dict) and result.get("_async") == "speak":
+                await handle_speak(result["text"], result.get("voice"), websocket)
+                continue
+
             await websocket.send(json.dumps(result))
     except websockets.ConnectionClosed:
         pass
