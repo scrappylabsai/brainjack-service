@@ -117,7 +117,7 @@ step "Installing to $INSTALL_DIR"
 mkdir -p "$INSTALL_DIR"
 
 # Files we need from the repo
-FILES="agent.py requirements.txt .env.template com.brainjack.agent.plist brainjack-agent.service .gitignore"
+FILES="agent.py audio_handler.py requirements.txt .env.template com.brainjack.agent.plist brainjack-agent.service .gitignore"
 BASE_URL="https://raw.githubusercontent.com/$REPO/$BRANCH"
 
 download() {
