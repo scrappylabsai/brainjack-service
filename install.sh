@@ -144,7 +144,7 @@ if [ "$OS" = "Darwin" ]; then
     # osacompile creates a proper Cocoa app bundle.
     # macOS attributes Accessibility permission to the app, not raw Python.
     osacompile -o "$DIR/BrainJack.app" -e \
-        "do shell script \"exec '$DIR/.venv/bin/python' '$DIR/agent.py' >> '$DIR/brainjack.log' 2>&1\""
+        "do shell script \"cd '$DIR' && exec '$DIR/.venv/bin/python' '$DIR/agent.py' >> '$DIR/brainjack.log' 2>&1\""
 
     # Customize bundle identity
     APLIST="$DIR/BrainJack.app/Contents/Info.plist"
