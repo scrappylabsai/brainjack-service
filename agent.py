@@ -432,6 +432,8 @@ def inject_text(text: str) -> dict:
         return {"ok": r.returncode == 0, "error": r.stderr.strip() or None}
 
     if PLATFORM == "macos":
+        # Preserve full transcription in clipboard as backup before line-by-line inject
+        subprocess.run(["pbcopy"], input=text.encode(), check=True, timeout=5)
         parts = text.split("\n")
         for i, part in enumerate(parts):
             if part:
