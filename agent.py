@@ -7,6 +7,7 @@ ydotool (Linux Wayland), or osascript (macOS).
 
 Protocol:
     {"cmd":"type","text":"hello world"}
+    {"cmd":"clipboard","text":"hello world"}  (write to system clipboard)
     {"cmd":"key","key":"Return"}
     {"cmd":"combo","keys":"ctrl+c"}
     {"cmd":"status"}
@@ -324,6 +325,7 @@ if PLATFORM == "windows":
         inject_text as _win_inject_text,
         inject_key as _win_inject_key,
         inject_combo as _win_inject_combo,
+        inject_clipboard as _win_inject_clipboard,
         get_context_extra as _win_get_context_extra,
     )
 
@@ -460,6 +462,55 @@ def inject_text(text: str) -> dict:
         if _HAS_QUARTZ:
             time.sleep(0.15)
         return {"ok": True}
+
+    return {"ok": False, "error": f"unsupported platform: {PLATFORM}"}
+
+# ---------------------------------------------------------------------------
+# Clipboard injection (write text to system clipboard, no keystrokes)
+# ---------------------------------------------------------------------------
+
+def inject_clipboard(text: str) -> dict:
+    """Write text to the system clipboard without typing anything."""
+    if PLATFORM == "macos":
+        try:
+            r = subprocess.run(
+                ["pbcopy"], input=text.encode("utf-8"),
+                capture_output=True, timeout=5,
+            )
+            return {"ok": r.returncode == 0, "error": r.stderr.decode().strip() or None}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    if PLATFORM in ("linux-x11", "linux-wayland"):
+        # Try all clipboard tools — works across X11/Wayland/XWayland/mixed setups.
+        # Order: prefer native to detected session, then fallbacks.
+        # Each entry: (binary, args, stdin_bytes, capture_output)
+        # wl-copy: must use stdin and skip capture_output (it forks to serve clipboard)
+        tools = [
+            ("xclip",   ["xclip", "-selection", "clipboard"], True,  True),
+            ("xsel",    ["xsel", "--clipboard", "--input"],    True,  True),
+            ("wl-copy", ["wl-copy"],                           True,  False),
+        ]
+        if PLATFORM == "linux-wayland":
+            # Prefer wl-copy on Wayland
+            tools = [tools[2], tools[0], tools[1]]
+
+        for tool_cmd, tool_args, use_stdin, capture in tools:
+            if shutil.which(tool_cmd):
+                try:
+                    r = subprocess.run(
+                        tool_args,
+                        input=text.encode("utf-8") if use_stdin else None,
+                        capture_output=capture, timeout=5,
+                    )
+                    if r.returncode == 0:
+                        return {"ok": True}
+                except Exception:
+                    continue  # try next tool
+        return {"ok": False, "error": "no clipboard tool found — install xclip, xsel, or wl-clipboard"}
+
+    if PLATFORM == "windows":
+        return _win_inject_clipboard(text)
 
     return {"ok": False, "error": f"unsupported platform: {PLATFORM}"}
 
@@ -695,6 +746,12 @@ def handle_command(data: dict) -> dict:
         if not text:
             return {"ok": False, "error": "missing text"}
         return inject_text(text)
+
+    if cmd == "clipboard":
+        text = data.get("text", "")
+        if not text:
+            return {"ok": False, "error": "missing text"}
+        return inject_clipboard(text)
 
     if cmd == "key":
         key = data.get("key", "")

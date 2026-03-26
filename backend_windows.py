@@ -302,6 +302,44 @@ def inject_combo(keys: str) -> dict:
         return {"ok": False, "error": str(e)}
 
 
+def inject_clipboard(text: str) -> dict:
+    """Write text to the Windows clipboard using Win32 API."""
+    CF_UNICODETEXT = 13
+    GMEM_MOVEABLE = 0x0002
+
+    user32 = ctypes.windll.user32
+    kernel32 = ctypes.windll.kernel32
+
+    try:
+        encoded = text.encode("utf-16-le") + b"\x00\x00"
+        h_mem = kernel32.GlobalAlloc(GMEM_MOVEABLE, len(encoded))
+        if not h_mem:
+            return {"ok": False, "error": "GlobalAlloc failed"}
+
+        p_mem = kernel32.GlobalLock(h_mem)
+        if not p_mem:
+            kernel32.GlobalFree(h_mem)
+            return {"ok": False, "error": "GlobalLock failed"}
+
+        ctypes.memmove(p_mem, encoded, len(encoded))
+        kernel32.GlobalUnlock(h_mem)
+
+        if not user32.OpenClipboard(0):
+            kernel32.GlobalFree(h_mem)
+            return {"ok": False, "error": "OpenClipboard failed"}
+
+        user32.EmptyClipboard()
+        user32.SetClipboardData(CF_UNICODETEXT, h_mem)
+        user32.CloseClipboard()
+        return {"ok": True}
+    except Exception as e:
+        try:
+            user32.CloseClipboard()
+        except Exception:
+            pass
+        return {"ok": False, "error": str(e)}
+
+
 def get_context_extra() -> dict:
     """Return Windows-specific context info for the status command."""
     info = {}
