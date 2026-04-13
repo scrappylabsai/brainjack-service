@@ -8,7 +8,7 @@
   <a href="https://brainjack.ai"><img src="https://img.shields.io/badge/website-brainjack.ai-orange" alt="Website"></a>
   <a href="https://discord.gg/ekRv2zJCHT"><img src="https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white" alt="Discord"></a>
   <a href="https://brainjack.ai/dongle"><img src="https://img.shields.io/badge/dongle-order_now-e84393" alt="Order Dongle"></a>
-  <a href="https://github.com/scrappylabsai/brainjack-service/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-BSL%201.1-blue.svg" alt="License"></a>
+  <a href="https://github.com/scrappylabsai/brainjack-service/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-green" alt="Platform">
 </p>
 
@@ -37,8 +37,22 @@ Works two ways:
 
 ### Step 2: Choose Your Path
 
+<details open>
+<summary><strong>Path A: macOS App (recommended for Mac)</strong> — drag to Applications</summary>
+
+**[Download BrainJack.dmg](https://stuff.loser.com/public/BrainJack.dmg)** — a native menubar app that handles everything.
+
+1. Open the DMG, drag BrainJack to Applications
+2. Launch it — first run automatically sets up Python, venv, and dependencies
+3. Scan the QR code with the iOS app to connect
+4. Grant Accessibility permission when prompted (optional — needed for keystroke injection)
+
+BrainJack lives in your menubar. It auto-starts on login, shows connection status, and lets you restart the service or re-display the QR code anytime.
+
+</details>
+
 <details>
-<summary><strong>Path A: Install the Service (developers)</strong> — 30 seconds</summary>
+<summary><strong>Path B: Terminal Install (macOS / Linux / advanced)</strong> — 30 seconds</summary>
 
 ```bash
 # One-liner install (macOS / Linux)
@@ -59,7 +73,7 @@ The installer creates a venv, installs one dependency (`websockets`), generates 
 </details>
 
 <details>
-<summary><strong>Path B: Use the USB Dongle (everyone)</strong> — plug and play</summary>
+<summary><strong>Path C: Use the USB Dongle (everyone)</strong> — plug and play</summary>
 
 The BrainJack dongle is a pre-flashed USB device that appears as a standard keyboard. Plug it into any computer. The target machine thinks someone is typing on a keyboard.
 
@@ -339,7 +353,7 @@ BrainJack is built by people who use it every day. Your feedback shapes what shi
 
 ## License
 
-[Business Source License 1.1](LICENSE) — free for personal and non-commercial use. Converts to Apache 2.0 on 2030-03-09. Commercial use requires a [license from ScrappyLabs](mailto:brian@scrappylabs.ai).
+[Apache License 2.0](LICENSE)
 
 ---
 
