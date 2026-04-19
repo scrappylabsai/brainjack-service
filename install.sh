@@ -87,16 +87,26 @@ fi
 
 # --- Input injection tool (Linux only) ---
 if [ "$OS" = "Linux" ]; then
+    install_pkg() {
+        local pkg="$1"
+        if command -v apt &>/dev/null; then
+            sudo apt-get install -y "$pkg"
+        elif command -v pacman &>/dev/null; then
+            sudo pacman -S --noconfirm "$pkg"
+        elif command -v dnf &>/dev/null; then
+            sudo dnf install -y "$pkg"
+        else
+            return 1
+        fi
+    }
     if [ -n "${WAYLAND_DISPLAY:-}" ]; then
         echo "[brainjack] Wayland detected — ensuring ydotool..."
         if ! command -v ydotool &>/dev/null; then
-            if command -v pacman &>/dev/null; then
-                sudo pacman -S --noconfirm ydotool
-            elif command -v apt &>/dev/null; then
-                sudo apt install -y ydotool
-            else
-                echo "WARNING: Install ydotool manually for Wayland support"
-            fi
+            install_pkg ydotool || echo "WARNING: install ydotool manually for Wayland support"
+        fi
+        if ! command -v ydotool &>/dev/null; then
+            echo "[brainjack] ERROR: ydotool still missing after install attempt. The service will not start until it is installed." >&2
+            exit 1
         fi
         if ! groups | grep -q '\binput\b'; then
             echo "[brainjack] Adding $(whoami) to input group (re-login required)..."
@@ -104,15 +114,13 @@ if [ "$OS" = "Linux" ]; then
         fi
         systemctl --user enable --now ydotool.service 2>/dev/null || true
     else
-        echo "[brainjack] X11 detected — ensuring xdotool..."
+        echo "[brainjack] X11/headless — ensuring xdotool..."
         if ! command -v xdotool &>/dev/null; then
-            if command -v pacman &>/dev/null; then
-                sudo pacman -S --noconfirm xdotool
-            elif command -v apt &>/dev/null; then
-                sudo apt install -y xdotool
-            else
-                echo "WARNING: Install xdotool manually for X11 support"
-            fi
+            install_pkg xdotool || echo "WARNING: install xdotool manually for X11 support"
+        fi
+        if ! command -v xdotool &>/dev/null; then
+            echo "[brainjack] ERROR: xdotool still missing after install attempt. The service will not start until it is installed." >&2
+            exit 1
         fi
     fi
 fi

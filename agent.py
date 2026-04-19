@@ -976,11 +976,20 @@ async def ws_handler(websocket, cfg: dict):
 
 async def main(cfg: dict):
     # Sanity checks
+    def _install_hint(pkg: str) -> str:
+        if shutil.which("apt"):
+            return f"sudo apt install -y {pkg}"
+        if shutil.which("pacman"):
+            return f"sudo pacman -S --noconfirm {pkg}"
+        if shutil.which("dnf"):
+            return f"sudo dnf install -y {pkg}"
+        return f"install {pkg} via your package manager"
+
     if PLATFORM == "linux-x11" and not shutil.which("xdotool"):
-        print("ERROR: xdotool not found. Install: sudo pacman -S xdotool")
+        print(f"ERROR: xdotool not found. Install: {_install_hint('xdotool')}")
         sys.exit(1)
     if PLATFORM == "linux-wayland" and not shutil.which("ydotool"):
-        print("ERROR: ydotool not found. Install: sudo pacman -S ydotool")
+        print(f"ERROR: ydotool not found. Install: {_install_hint('ydotool')}")
         sys.exit(1)
     if PLATFORM == "macos" and not shutil.which("osascript"):
         print("ERROR: osascript not found (should be built-in on macOS)")
